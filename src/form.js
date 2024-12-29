@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./form.css";
 import axios from "axios";
 import html2pdf from "html2pdf.js";
+import Swal from "sweetalert2";
 
 const UserForm = () => {
   const [formData, setFormData] = useState({
@@ -58,6 +59,13 @@ const UserForm = () => {
     });
   };
 
+  const deleteFamilyMember = (index) => {
+    setFormData((prev) => ({
+      ...formData,
+      familyMembers: formData.familyMembers.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleFamilyMemberChange = (e, index, field) => {
     const updatedFamilyMembers = [...formData.familyMembers];
     updatedFamilyMembers[index][field] = e.target.value;
@@ -74,6 +82,14 @@ const UserForm = () => {
     }));
   };
 
+  const deleteFourWheeler = (index) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      fourWheelers: prevData.fourWheelers.filter((_, i) => i !== index),
+    }));
+  };
+  
+
   const handleFourWheelerChange = (e, index, field) => {
     const updatedFourWheelers = [...formData.fourWheelers];
     updatedFourWheelers[index][field] = e.target.value;
@@ -89,6 +105,14 @@ const UserForm = () => {
       ],
     }));
   };
+
+  const deleteTwoWheeler = (index) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      twoWheelers: prevData.twoWheelers.filter((_, i) => i !== index),
+    }));
+  };
+  
 
   const handleTwoWheelerChange = (e, index, field) => {
     const updatedTwoWheelers = [...formData.twoWheelers];
@@ -113,6 +137,14 @@ const UserForm = () => {
     });
   };
 
+  const deleteTenant = (index) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      tenants: prevData.tenants.filter((_, i) => i !== index),
+    }));
+  };
+  
+
   const handleCheckboxChange = () => {
     setFormData({ ...formData, declaration: !formData.declaration });
   };
@@ -120,8 +152,8 @@ const UserForm = () => {
   const handleFileChange = (e) => {
     const { name } = e.target;
     const file = e.target.files[0];
-    if (file.size > 1024 * 1024) {
-      alert("File size exceeds 1MB");
+    if (file.size > 5 * 1024 * 1024) {
+      Swal.fire("Validation Error", "File size exceeds 5MB");
       return;
     }
     setFormData({ ...formData, [name]: file });
@@ -129,7 +161,121 @@ const UserForm = () => {
 
   // Function to handle the preview button click
   const handlePreview = () => {
-    setPreview(true); // Show preview modal when clicked
+    const {
+      email,
+      membershipType,
+      shareCertificateNo,
+      firstName,
+      middleName,
+      lastName,
+      flatDetails,
+      wingName,
+      flatNo,
+      flatArea,
+      dob,
+      gender,
+      maritalStatus,
+      parentOrSpouseName,
+      familyMembers,
+      guardianName,
+      religion,
+      nationality,
+      otherCountry,
+      aadhar,
+      panCard,
+      education,
+      profession,
+      mobileNumber,
+      alternateContact,
+      fourWheelers,
+      twoWheelers,
+      tenants,
+      petDetails,
+      rented,
+      residentialAddress,
+      declaration,
+      date,
+    } = formData;
+
+    // Mandatory field check
+    const validateField = () => {
+      // Personal Information
+      if (!membershipType) return 'Membership Type is mandatory.';
+      else if (!shareCertificateNo) return 'Share Certificate Number is mandatory.';
+      else if (!firstName) return 'First Name is mandatory.';
+      else if (!middleName) return 'Middle Name is mandatory.';
+      else if (!lastName) return 'Last Name is mandatory.';
+      else if (!dob) return 'Date of Birth is mandatory.';
+      else if (new Date(dob) > new Date()) return 'Date of Birth cannot be in the future.';
+      else if (!gender) return 'Gender is mandatory.';
+      else if (!maritalStatus) return 'Marital Status is mandatory.';
+      else if (!parentOrSpouseName) return 'Parent or Spouse Name is mandatory.';
+      else if (!guardianName) return 'Guardian Name is mandatory.';
+      else if (!religion) return 'Religion is mandatory.';
+      else if (!nationality) return 'Nationality is mandatory.';
+      else if (nationality === 'Other' && !otherCountry) return 'Please specify the country if Nationality is "Other".';
+    
+      // Identification Information
+      else if (!aadhar) return 'Aadhar number is mandatory.';
+      else if (!/^\d{12}$/.test(aadhar)) return 'Aadhar number must be exactly 12 digits.';
+      else if (!panCard) return 'PAN Card number is mandatory.';
+      else if (panCard.length > 10) return 'PAN Card number cannot exceed 10 characters.';
+    
+      // Contact Information
+      else if (!email) return 'Email is mandatory.';
+      else if (!/^\S+@\S+\.\S+$/.test(email)) return 'Invalid email format.';
+      else if (!mobileNumber) return 'Mobile Number is mandatory.';
+      else if (!/^\d{10}$/.test(mobileNumber)) return 'Mobile number must be exactly 10 digits.';
+      else if (!alternateContact) return 'Alternate Contact Number is mandatory.';
+    
+      // Residential Information
+      else if (!residentialAddress) return 'Residential Address is mandatory.';
+      else if (!flatDetails) return 'Flat Details are mandatory.';
+      else if (!wingName) return 'Wing Name is mandatory.';
+      else if (!flatNo) return 'Flat Number is mandatory.';
+      else if (!flatArea) return 'Flat Area is mandatory.';
+    
+      // Membership Detail
+    
+      // Family Members
+      else if (!familyMembers || familyMembers.length === 0) return 'Please add at least one Family Member.';
+    
+      // Vehicles
+      else if (!fourWheelers || fourWheelers.length === 0) return 'Four Wheeler details are mandatory.';
+      else if (!twoWheelers || twoWheelers.length === 0) return 'Two Wheeler details are mandatory.';
+    
+      // Tenants
+      else if (rented && (!tenants || tenants.length === 0)) return 'Tenant details are mandatory for rented properties.';
+    
+      // Pets
+      else if (petDetails && petDetails.length === 0) return 'Pet Details are mandatory if you have pets.';
+    
+      // Declaration
+      else if (!declaration) return 'You must accept the declaration.';
+    
+      // Date
+      else if (!date) return 'Date is mandatory.';
+      else if (new Date(date) > new Date()) return 'The date cannot be in the future.';
+
+      else if (!education) return 'Education Details is mandatory.';
+      else if (!profession) return 'Profession is mandatory.';
+      else if (!residentialAddress) return 'Residential Address is mandatory.';
+    
+      return null; // No errors found
+    };
+    
+    // Usage in the Preview Button Handler
+    const errorMessage = validateField();
+    if (errorMessage) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: errorMessage,
+      });
+    } else {
+      setPreview(true);
+    }
+ // Show preview modal when clicked
   };
 
   // Function to close the preview modal
@@ -248,20 +394,6 @@ const UserForm = () => {
 const handleSubmit = async (event) => {
   event.preventDefault();
 
-  // Validation logic
-  if (!/^\d{12}$/.test(formData.aadhar)) {
-    alert("Aadhar number must be 12 digits long");
-    return;
-  }
-  if (!/^\d{10}$/.test(formData.mobileNumber)) {
-    alert("Mobile number must be 10 digits long");
-    return;
-  }
-  if (!/\S+@\S+\.\S+/.test(formData.email)) {
-    alert("Invalid email address");
-    return;
-  }
-
   // Prepare form data for submission
   const formDataToSubmit = new FormData();
   Object.keys(formData).forEach((key) => {
@@ -286,8 +418,9 @@ const handleSubmit = async (event) => {
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
+
     if (formResponse.status === 200) {
-      console.log("Form data submitted successfully to MongoDB");
+      Swal.fire("Success", "Form submitted successfully!", "success");
 
       // Generate the PDF as base64 string using handleDownload
       const pdfData = await handleDownload1();
@@ -306,16 +439,22 @@ const handleSubmit = async (event) => {
       });
 
       if (emailResponse.data.success) {
-        alert("Form submitted and email sent successfully!");
+        Swal.fire("Success", "Email sent successfully!", "success");
       } else {
-        alert("Failed to send email.");
+        Swal.fire("Error", "Failed to send email.", "error");
       }
     }
   } catch (error) {
-    console.error("Error in handleSubmit:", error);
-    alert("Error submitting the form or sending email.");
+    if (error.response && error.response.status === 400) {
+      // Show SweetAlert2 for "email already used" error
+      Swal.fire("Error", error.response.data.message || "Email already used", "error");
+    } else {
+      console.error("Error in handleSubmit:", error);
+      Swal.fire("Error", "Error submitting the form or sending email.", "error");
+    }
   }
 };
+
 
   return (
     <div className="form-container">
@@ -531,6 +670,7 @@ const handleSubmit = async (event) => {
                   }
                   
                 />
+                <button className="delete-btn" onClick={() => deleteFamilyMember(index)}>Delete</button>
               </div>
             ))}
             <button type="button" onClick={addFamilyMember}>
@@ -666,7 +806,6 @@ const handleSubmit = async (event) => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              
             />
           </div>
 
@@ -726,6 +865,7 @@ const handleSubmit = async (event) => {
                   <option value="ICE">ICE</option>
                   <option value="EV">EV</option>
                 </select>
+                <button className="delete-btn" onClick={() => deleteFourWheeler(index)}>Delete</button>
               </div>
             ))}
             <button type="button" onClick={addFourWheeler}>
@@ -789,6 +929,7 @@ const handleSubmit = async (event) => {
                   <option value="ICE">ICE</option>
                   <option value="EV">EV</option>
                 </select>
+                <button className="delete-btn" onClick={() => deleteTwoWheeler(index)}>Delete</button>
               </div>
             ))}
             <button type="button" onClick={addTwoWheeler}>
@@ -898,6 +1039,7 @@ const handleSubmit = async (event) => {
                   placeholder="Enter mobile number"
                   
                 />
+                <button className="delete-btn" onClick={() => deleteTenant(index)}>Delete</button>
               </div>
             ))}
             <button type="button" onClick={addTenant}>

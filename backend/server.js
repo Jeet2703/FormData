@@ -116,6 +116,7 @@ app.post(
   upload.fields([{ name: "photo" }, { name: "signature" }]),
   async (req, res) => {
     const {
+      email,
       membershipType,
       shareCertificateNo,
       firstName,
@@ -140,7 +141,6 @@ app.post(
       profession,
       mobileNumber,
       alternateContact,
-      email,
       fourWheelers,
       twoWheelers,
       tenants,
@@ -151,56 +151,66 @@ app.post(
       date,
     } = req.body;
 
-    const photo = req.files["photo"] ? req.files["photo"][0].path : null;
-    const signature = req.files["signature"] ? req.files["signature"][0].path : null;
-
-    const formData = new FormData({
-      membershipType,
-      shareCertificateNo,
-      firstName,
-      middleName,
-      lastName,
-      flatDetails,
-      wingName,
-      flatNo,
-      flatArea,
-      dob: new Date(dob),
-      gender,
-      maritalStatus,
-      parentOrSpouseName,
-      familyMembers: JSON.parse(familyMembers),
-      guardianName,
-      religion,
-      nationality,
-      otherCountry,
-      aadhar,
-      panCard,
-      education,
-      profession,
-      mobileNumber,
-      alternateContact,
-      email,
-      fourWheelers: JSON.parse(fourWheelers),
-      twoWheelers: JSON.parse(twoWheelers),
-      tenants: JSON.parse(tenants),
-      petDetails,
-      rented,
-      residentialAddress,
-      declaration,
-      dob: new Date(dob),
-      photo,
-      signature,
-    });
-
     try {
+      // Check if email already exists
+      const existingForm = await FormData.findOne({ email });
+      if (existingForm) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Email already used" });
+      }
+
+      const photo = req.files["photo"] ? req.files["photo"][0].path : null;
+      const signature = req.files["signature"] ? req.files["signature"][0].path : null;
+
+      const formData = new FormData({
+        membershipType,
+        shareCertificateNo,
+        firstName,
+        middleName,
+        lastName,
+        flatDetails,
+        wingName,
+        flatNo,
+        flatArea,
+        dob: new Date(dob),
+        gender,
+        maritalStatus,
+        parentOrSpouseName,
+        familyMembers: JSON.parse(familyMembers),
+        guardianName,
+        religion,
+        nationality,
+        otherCountry,
+        aadhar,
+        panCard,
+        education,
+        profession,
+        mobileNumber,
+        alternateContact,
+        email,
+        fourWheelers: JSON.parse(fourWheelers),
+        twoWheelers: JSON.parse(twoWheelers),
+        tenants: JSON.parse(tenants),
+        petDetails,
+        rented,
+        residentialAddress,
+        declaration,
+        dob: new Date(dob),
+        photo,
+        signature,
+      });
+
       await formData.save();
-      res.status(200).json({ message: "Form data submitted successfully" });
+      res.status(200).json({ success: true, message: "Form submitted successfully" });
     } catch (error) {
       console.error("Error saving form data:", error);
-      res.status(500).json({ message: "Error saving data", error });
+      res.status(500).json({ success: false, message: "Error saving data", error });
     }
   }
 );
+
+
 
 // Route to send email
 app.post("/send-email", async (req, res) => {

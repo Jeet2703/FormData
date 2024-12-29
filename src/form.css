@@ -95,12 +95,9 @@ textarea {
     color: #555;
 }
 
-.vehicle-details select,
-.family-member input,
-.tenant-info select{
-    margin-bottom: 10px;
+.delete-btn {
+  margin-top: 10px;
 }
-
 /* Buttons */
 button {
     background: #007bff;

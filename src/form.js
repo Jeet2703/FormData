@@ -409,7 +409,7 @@ const handleSubmit = async (event) => {
   try {
     // Call the submit-form API
     const formResponse = await axios.post(
-      "http://localhost:5001/submit-form",
+      `${process.env.REACT_APP_BACKEND_URL}/submit-form`, 
       formDataToSubmit,
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -428,12 +428,15 @@ const handleSubmit = async (event) => {
       const subj = formData.flatNo;
 
       // Call the send-email API
-      const emailResponse = await axios.post("http://localhost:5001/send-email", {
-        email1,
-        pdfData,
-        fileName,
-        subj,
-      });
+      const emailResponse = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/send-email`, 
+        {
+          email1,
+          pdfData,
+          fileName,
+          subj,
+        }
+      );
 
       if (emailResponse.data.success) {
         Swal.fire("Success", "Email sent successfully!", "success");

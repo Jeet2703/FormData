@@ -1,0 +1,249 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const multer = require("multer");
+const path = require("path");
+const nodemailer = require("nodemailer");
+
+const app = express();
+const port = 5001;
+
+// MongoDB connection
+mongoose.connect(
+  "mongodb+srv://shahjeet64:ZNIsezGUlnm1o4vO@cluster0.zarb9en.mongodb.net/formData?retryWrites=true&w=majority",
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+);
+
+// Check MongoDB connection
+mongoose.connection.on("connected", () => {
+  console.log("Connected to MongoDB");
+});
+
+// Middleware
+app.use(bodyParser.json({ limit: "10mb" })); // Increased limit for large PDFs
+app.use(cors());
+
+// Set up multer for file upload
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
+
+// MongoDB Schema for form data
+const formDataSchema = new mongoose.Schema({
+  membershipType: String,
+  shareCertificateNo: String,
+  firstName: String,
+  middleName: String,
+  lastName: String,
+  flatDetails: String,
+  wingName: String,
+  flatNo: String,
+  flatArea: String,
+  dob: Date,
+  gender: String,
+  maritalStatus: String,
+  parentOrSpouseName: String,
+  familyMembers: [
+    {
+      name: String,
+      dob: Date,
+      relation: String,
+    },
+  ],
+  guardianName: String,
+  religion: String,
+  nationality: String,
+  otherCountry: String,
+  aadhar: String,
+  panCard: String,
+  education: String,
+  profession: String,
+  mobileNumber: String,
+  alternateContact: String,
+  email: String,
+  fourWheelers: [
+    {
+      registrationNo: String,
+      parkingSlot: String,
+      make: String,
+      model: String,
+      type: String, // ICE or EV
+    },
+  ],
+  twoWheelers: [
+    {
+      registrationNo: String,
+      parkingSlot: String,
+      make: String,
+      model: String,
+      type: String, // ICE or EV
+    },
+  ],
+  tenants: [
+    {
+      name: String,
+      dob: Date,
+      gender: String,
+      mobileNo: String,
+    },
+  ],
+  petDetails: String,
+  rented: String,
+  residentialAddress: String,
+  declaration: String,
+  date: Date,
+  photo: String,
+  signature: String,
+});
+
+// Model for form data
+const FormData = mongoose.model("FormData", formDataSchema);
+
+// Route to handle form data submission
+app.post(
+  "/submit-form",
+  upload.fields([{ name: "photo" }, { name: "signature" }]),
+  async (req, res) => {
+    const {
+      membershipType,
+      shareCertificateNo,
+      firstName,
+      middleName,
+      lastName,
+      flatDetails,
+      wingName,
+      flatNo,
+      flatArea,
+      dob,
+      gender,
+      maritalStatus,
+      parentOrSpouseName,
+      familyMembers,
+      guardianName,
+      religion,
+      nationality,
+      otherCountry,
+      aadhar,
+      panCard,
+      education,
+      profession,
+      mobileNumber,
+      alternateContact,
+      email,
+      fourWheelers,
+      twoWheelers,
+      tenants,
+      petDetails,
+      rented,
+      residentialAddress,
+      declaration,
+      date,
+    } = req.body;
+
+    const photo = req.files["photo"] ? req.files["photo"][0].path : null;
+    const signature = req.files["signature"] ? req.files["signature"][0].path : null;
+
+    const formData = new FormData({
+      membershipType,
+      shareCertificateNo,
+      firstName,
+      middleName,
+      lastName,
+      flatDetails,
+      wingName,
+      flatNo,
+      flatArea,
+      dob: new Date(dob),
+      gender,
+      maritalStatus,
+      parentOrSpouseName,
+      familyMembers: JSON.parse(familyMembers),
+      guardianName,
+      religion,
+      nationality,
+      otherCountry,
+      aadhar,
+      panCard,
+      education,
+      profession,
+      mobileNumber,
+      alternateContact,
+      email,
+      fourWheelers: JSON.parse(fourWheelers),
+      twoWheelers: JSON.parse(twoWheelers),
+      tenants: JSON.parse(tenants),
+      petDetails,
+      rented,
+      residentialAddress,
+      declaration,
+      dob: new Date(dob),
+      photo,
+      signature,
+    });
+
+    try {
+      await formData.save();
+      res.status(200).json({ message: "Form data submitted successfully" });
+    } catch (error) {
+      console.error("Error saving form data:", error);
+      res.status(500).json({ message: "Error saving data", error });
+    }
+  }
+);
+
+// Route to send email
+app.post("/send-email", async (req, res) => {
+  const { email1, pdfData, fileName, subj } = req.body;
+
+  try {
+    if (!pdfData || !fileName) {
+      return res.status(400).json({ success: false, error: "Missing pdfData or fileName" });
+    }
+
+    const pdfBuffer = Buffer.from(pdfData.split(",")[1], "base64");
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "jeetshah2703@gmail.com",
+        pass: "rhkg rmbr hsdt irra",
+      },
+    });
+
+    const mailOptions = {
+        from: `Form Submission <jeetshah2703@gmail.com>`, // Must match the authenticated account
+        replyTo: email1,
+        to: "jeetshah2703@gmail.com", // Receiver's email
+        subject: subj,
+        text: `You have received a form submission from: ${email1}.`,
+      attachments: [
+        {
+          filename: fileName,
+          content: pdfBuffer,
+          encoding: "base64",
+        },
+      ],
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    res.status(200).json({ success: true, message: "Email sent successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Start server
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});

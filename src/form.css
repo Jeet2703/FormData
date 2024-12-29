@@ -1,0 +1,291 @@
+/* General Form Styles */
+.form-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to bottom right, #f5f3cf, #c8e9f5, #faeeee, #e6e6e6);
+    padding: 20px;
+}
+
+.form-content {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    width: 90%;
+    max-width: 800px;
+    /* Adjusted for additional fields */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-align: left;
+}
+
+.form-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    color: #333;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="file"],
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-top: 5px;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-top: 5px;
+    resize: vertical;
+}
+
+/* Inline Elements */
+.form-group-inline {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-group-inline input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Dynamic Sections (Family Members, Vehicles) */
+.family-member,
+.vehicle-details,
+.tenant-info {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #f9f9f9;
+}
+
+.family-member h4,
+.vehicle-details h4,
+.tenant-info h4 {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.vehicle-details select,
+.family-member input,
+.tenant-info select{
+    margin-bottom: 10px;
+}
+
+/* Buttons */
+button {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-right: 5px;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+input[type="radio"] {
+    margin-right: 5px;
+}
+
+input[type="radio"]+label {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+input[type="file"] {
+    padding: 5px;
+}
+
+/* Nationality Section */
+/* .form-group-radio {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.form-group-radio input[type="text"] {
+    margin-top: 10px;
+    margin-bottom: 10px;
+} */
+
+.membership-options {
+    display: flex;
+    gap: 15px;
+    /* Space between the radio buttons */
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    /* Vertically align the radio buttons */
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    /* align-items: center; */
+    z-index: 1000;
+    overflow-y: auto; /* Ensure the modal can scroll if content overflows */
+  }
+  
+  /* Modal Content */
+  .modal-content {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    width: 80%;
+    max-width: 1000px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-align: left;
+    position: relative;
+    max-height: max-content;
+    height: fit-content;
+    /* max-height: 80vh; /* Ensure the modal height doesn't exceed the screen */
+    /* overflow-y: auto; /* Allow scrolling within the modal */
+  }
+  
+  /* Ensure photo and signature do not overflow */
+  /* .photo-and-signature {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    flex-wrap: wrap; 
+  } */
+
+  .photo {
+    position: absolute;
+    top: 20px;
+    right: 0px;
+  }
+  
+  .photo img {
+    width: 100px;
+    object-fit: contain;
+  }
+
+  .signature {
+    position: absolute;
+    right: 0px;
+  }
+
+  .signature img {
+    width: 100px;
+    object-fit: contain;
+  }
+
+  /* .photo img, .signature img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  } */
+  
+  /* Handle large content by allowing modal scrolling */
+  .preview-content {
+    /* max-height: 90vh; /* Ensure the content doesn't overflow */
+    /* overflow-y: auto; /* Allow scrolling within the content */
+    position: relative;
+  }
+  
+  /* Add better table styling */
+  table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 8px;
+    border: 1px solid #ccc;
+    text-align: left;
+  }
+  
+  th {
+    background-color: #f9f9f9;
+  }
+  
+  .download-btn-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10%;
+  }
+  
+  .download-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .download-button:hover {
+    background-color: #218838;
+  }
+
+.photo-preview,
+.signature-preview {
+    margin-top: 10px;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: block;
+    width: 100px;
+    height: 125px;
+    object-fit: contain;
+}
+
+.photo-and-signature {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+/* Declaration Checkbox */
+.form-group-checkbox {
+  margin-bottom: 10px;
+}
+
+.form-group-checkbox input {
+  margin-right: 10px;
+}

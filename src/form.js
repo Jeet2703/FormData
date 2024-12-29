@@ -943,7 +943,7 @@ const handleSubmit = async (event) => {
             {formData.photo && (
               <img
                 src={URL.createObjectURL(formData.photo)}
-                alt="Uploaded Photograph"
+                alt="A description of the image"
                 className="photo-preview"
               />
             )}
@@ -962,7 +962,7 @@ const handleSubmit = async (event) => {
             {formData.signature && (
               <img
                 src={URL.createObjectURL(formData.signature)}
-                alt="Uploaded Signature"
+                alt="A description of the image"
                 className="signature-preview"
               />
             )}
@@ -985,7 +985,9 @@ const handleSubmit = async (event) => {
 
             <div className="preview-content">
               <div className="photo">
-                <img src={URL.createObjectURL(formData.photo)} alt="Photo" />
+                <img src={URL.createObjectURL(formData.photo)} 
+                alt="A description of the image"
+                />
               </div>
               {/* Membership Details */}
               <div className="preview-section">
@@ -1191,7 +1193,7 @@ const handleSubmit = async (event) => {
               <div className="signature">
                 <img
                   src={URL.createObjectURL(formData.signature)}
-                  alt="Signature"
+                  alt="A description of the image"
                 />
               </div>
               {/* </div>

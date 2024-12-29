@@ -7,7 +7,7 @@ const path = require("path");
 const nodemailer = require("nodemailer");
 
 const app = express();
-const port = 5001;
+const PORT = process.env.PORT || 5001;
 
 // MongoDB connection
 mongoose.connect(
@@ -256,6 +256,4 @@ app.post("/send-email", async (req, res) => {
 });
 
 // Start server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -151,6 +151,8 @@ app.post(
       date,
     } = req.body;
 
+    console.log('Incoming formData:', req.body);
+
     try {
       // Check if email already exists
       const existingForm = await FormData.findOne({ email });
@@ -189,14 +191,14 @@ app.post(
         mobileNumber,
         alternateContact,
         email,
-        fourWheelers: JSON.parse(fourWheelers),
-        twoWheelers: JSON.parse(twoWheelers),
+        fourWheelers,
+        twoWheelers,
         tenants: JSON.parse(tenants),
         petDetails,
         rented,
         residentialAddress,
         declaration,
-        dob: new Date(dob),
+        date: new Date(date),
         photo,
         signature,
       });

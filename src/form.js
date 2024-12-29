@@ -187,10 +187,7 @@ const UserForm = () => {
       profession,
       mobileNumber,
       alternateContact,
-      fourWheelers,
-      twoWheelers,
       tenants,
-      petDetails,
       rented,
       residentialAddress,
       declaration,
@@ -240,15 +237,15 @@ const UserForm = () => {
       // Family Members
       else if (!familyMembers || familyMembers.length === 0) return 'Please add at least one Family Member.';
     
-      // Vehicles
-      else if (!fourWheelers || fourWheelers.length === 0) return 'Four Wheeler details are mandatory.';
-      else if (!twoWheelers || twoWheelers.length === 0) return 'Two Wheeler details are mandatory.';
+      // // Vehicles
+      // else if (!fourWheelers || fourWheelers.length === 0) return 'Four Wheeler details are mandatory.';
+      // else if (!twoWheelers || twoWheelers.length === 0) return 'Two Wheeler details are mandatory.';
     
-      // Tenants
+      // // Tenants
       else if (rented && (!tenants || tenants.length === 0)) return 'Tenant details are mandatory for rented properties.';
     
       // Pets
-      else if (petDetails && petDetails.length === 0) return 'Pet Details are mandatory if you have pets.';
+      // else if (petDetails && petDetails.length === 0) return 'Pet Details are mandatory if you have pets.';
     
       // Declaration
       else if (!declaration) return 'You must accept the declaration.';

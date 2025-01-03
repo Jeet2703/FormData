@@ -286,3 +286,8 @@ input[type="file"] {
 .form-group-checkbox input {
   margin-right: 10px;
 }
+
+.required-asterisk {
+  color: red;
+  margin-left: 4px;
+}

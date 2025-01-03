@@ -45,10 +45,37 @@ const UserForm = () => {
 
   const [preview, setPreview] = useState(false); // This controls the visibility of the preview modal
 
+  const calculateAge = (dob) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    console.log("birth Date: ", birthDate);
+    console.log("today:", today);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    console.log("age:", age);
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+    console.log("month diff: ", monthDifference);
+    const dayDifference = today.getDate() - birthDate.getDate();
+    console.log("day diff: ", dayDifference);
+  
+    // Adjust age if the current month/day is before the birth month/day
+    if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
+      age--;
+    }
+  
+    return age;
+  };
+
+  const [showGuardianField, setShowGuardianField] = useState(false);
+
   // Function to handle input field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    if (name === "dob") {
+      const age = calculateAge(value);
+      setShowGuardianField(age < 18);
+    }
   };
 
   // Function to handle file input changes (for photo and signature)
@@ -207,7 +234,7 @@ const UserForm = () => {
       else if (!gender) return 'Gender is mandatory.';
       else if (!maritalStatus) return 'Marital Status is mandatory.';
       else if (!parentOrSpouseName) return 'Parent or Spouse Name is mandatory.';
-      else if (!guardianName) return 'Guardian Name is mandatory.';
+      else if (showGuardianField && !guardianName) return 'Guardian Name is mandatory.';
       else if (!religion) return 'Religion is mandatory.';
       else if (!nationality) return 'Nationality is mandatory.';
       else if (nationality === 'Other' && !otherCountry) return 'Please specify the country if Nationality is "Other".';
@@ -217,16 +244,20 @@ const UserForm = () => {
       else if (!/^\d{12}$/.test(aadhar)) return 'Aadhar number must be exactly 12 digits.';
       else if (!panCard) return 'PAN Card number is mandatory.';
       else if (panCard.length > 10) return 'PAN Card number cannot exceed 10 characters.';
+      else if(panCard.length < 10) return 'PAN Card number cannot be less than 10 characters.';
+      else if (!education) return 'Education Details is mandatory.';
+      else if (!profession) return 'Profession is mandatory.';
     
       // Contact Information
-      else if (!email) return 'Email is mandatory.';
-      else if (!/^\S+@\S+\.\S+$/.test(email)) return 'Invalid email format.';
       else if (!mobileNumber) return 'Mobile Number is mandatory.';
       else if (!/^\d{10}$/.test(mobileNumber)) return 'Mobile number must be exactly 10 digits.';
       else if (!alternateContact) return 'Alternate Contact Number is mandatory.';
+      else if (!/^\d{10}$/.test(alternateContact)) return 'Alternate contact number must be exactly 10 digits.';
+      else if (!email) return 'Email is mandatory.';
+      else if (!/^\S+@\S+\.\S+$/.test(email)) return 'Invalid email format.';
     
       // Residential Information
-      else if (!residentialAddress) return 'Residential Address is mandatory.';
+      else if (rented === "yes" && !residentialAddress) return 'Residential Address is mandatory.';
       else if (!flatDetails) return 'Flat Details are mandatory.';
       else if (!wingName) return 'Wing Name is mandatory.';
       else if (!flatNo) return 'Flat Number is mandatory.';
@@ -240,9 +271,11 @@ const UserForm = () => {
       // // Vehicles
       // else if (!fourWheelers || fourWheelers.length === 0) return 'Four Wheeler details are mandatory.';
       // else if (!twoWheelers || twoWheelers.length === 0) return 'Two Wheeler details are mandatory.';
+
+      else if (rented === "yes" && !residentialAddress) return 'Residential Address is mandatory.';
     
       // // Tenants
-      else if (rented && (!tenants || tenants.length === 0)) return 'Tenant details are mandatory for rented properties.';
+      else if (rented === "yes" && (!tenants || tenants.length === 0)) return 'Tenant details are mandatory for rented properties.';
     
       // Pets
       // else if (petDetails && petDetails.length === 0) return 'Pet Details are mandatory if you have pets.';
@@ -253,10 +286,6 @@ const UserForm = () => {
       // Date
       else if (!date) return 'Date is mandatory.';
       else if (new Date(date) > new Date()) return 'The date cannot be in the future.';
-
-      else if (!education) return 'Education Details is mandatory.';
-      else if (!profession) return 'Profession is mandatory.';
-      else if (!residentialAddress) return 'Residential Address is mandatory.';
     
       return null; // No errors found
     };
@@ -286,7 +315,7 @@ const UserForm = () => {
   const handleDownload = () => {
 
     const options = {
-      margin: 17,
+      margin: 23,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
           scale: 4,
@@ -336,7 +365,7 @@ const UserForm = () => {
 
   const handleDownload1 = () => {
     const options = {
-        margin: 17,
+        margin: 23,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
             scale: 4,
@@ -463,7 +492,7 @@ const handleSubmit = async (event) => {
         <form>
           {/* Membership Type */}
           <div className="form-group">
-            <label>Membership Type</label>
+            <label>Membership Type<span className="required-asterisk">*</span></label>
             <div className="membership-options">
               <div>
                 <input
@@ -492,7 +521,7 @@ const handleSubmit = async (event) => {
 
           {/* Share Certificate No */}
           <div className="form-group">
-            <label>Share Certificate No.</label>
+            <label>Share Certificate No.<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="shareCertificateNo"
@@ -504,7 +533,7 @@ const handleSubmit = async (event) => {
 
           {/* Name Fields */}
           <div className="form-group">
-            <label>First Name</label>
+            <label>First Name<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="firstName"
@@ -514,7 +543,7 @@ const handleSubmit = async (event) => {
             />
           </div>
           <div className="form-group">
-            <label>Middle Name</label>
+            <label>Middle Name<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="middleName"
@@ -523,7 +552,7 @@ const handleSubmit = async (event) => {
             />
           </div>
           <div className="form-group">
-            <label>Last Name</label>
+            <label>Last Name<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="lastName"
@@ -535,7 +564,7 @@ const handleSubmit = async (event) => {
 
           {/* Flat Details */}
           <div className="form-group">
-            <label>Flat Details</label>
+            <label>Flat Details<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="flatDetails"
@@ -547,7 +576,7 @@ const handleSubmit = async (event) => {
 
           {/* Wing Name */}
           <div className="form-group">
-            <label>Wing Name</label>
+            <label>Wing Name<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="wingName"
@@ -559,7 +588,7 @@ const handleSubmit = async (event) => {
 
           {/* Flat No */}
           <div className="form-group">
-            <label>Flat No</label>
+            <label>Flat No<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="flatNo"
@@ -571,7 +600,7 @@ const handleSubmit = async (event) => {
 
           {/* Area of Flat */}
           <div className="form-group">
-            <label>Area of Flat</label>
+            <label>Area of Flat<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="flatArea"
@@ -583,7 +612,7 @@ const handleSubmit = async (event) => {
 
           {/* Date of Birth */}
           <div className="form-group">
-            <label>Date of Birth</label>
+            <label>Date of Birth<span className="required-asterisk">*</span></label>
             <input
               type="date"
               name="dob"
@@ -595,7 +624,7 @@ const handleSubmit = async (event) => {
 
           {/* Gender */}
           <div className="form-group">
-            <label>Gender</label>
+            <label>Gender<span className="required-asterisk">*</span></label>
             <select
               name="gender"
               value={formData.gender}
@@ -611,7 +640,7 @@ const handleSubmit = async (event) => {
 
           {/* Marital Status */}
           <div className="form-group">
-            <label>Marital Status</label>
+            <label>Marital Status<span className="required-asterisk">*</span></label>
             <select
               name="maritalStatus"
               value={formData.maritalStatus}
@@ -627,7 +656,7 @@ const handleSubmit = async (event) => {
 
           {/* Parent or Spouse Name */}
           <div className="form-group">
-            <label>Name of Father/ Mother/ Spouse</label>
+            <label>Name of Father/ Mother/ Spouse<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="parentOrSpouseName"
@@ -639,7 +668,7 @@ const handleSubmit = async (event) => {
 
           {/* Family Members */}
           <div className="form-group">
-            <label>Family Members</label>
+            <label>Family Members<span className="required-asterisk">*</span></label>
             {formData.familyMembers?.map((member, index) => (
               <div key={index} className="family-member">
                 <h4 style={{ fontWeight: "normal", color: "#555" }}>
@@ -679,19 +708,23 @@ const handleSubmit = async (event) => {
           </div>
 
           {/* Guardian Name (In case of Minor) */}
+          {showGuardianField && (
           <div className="form-group">
-            <label>Name of Guardian (In case of Minor)</label>
+            <label>Guardian Name (Required for minors)<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="guardianName"
               value={formData.guardianName}
               onChange={handleChange}
+              required
             />
           </div>
+          )}
+        
 
           {/* Religion */}
           <div className="form-group">
-            <label>Religion</label>
+            <label>Religion<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="religion"
@@ -703,7 +736,7 @@ const handleSubmit = async (event) => {
 
           {/* Nationality */}
           <div className="form-group">
-            <label>Nationality</label>
+            <label>Nationality<span className="required-asterisk">*</span></label>
             <select
               name="nationality"
               value={formData.nationality}
@@ -728,7 +761,7 @@ const handleSubmit = async (event) => {
 
           {/* Aadhar Number */}
           <div className="form-group">
-            <label>Aadhar Number</label>
+            <label>Aadhar Number(12 digits)<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="aadhar"
@@ -740,7 +773,7 @@ const handleSubmit = async (event) => {
 
           {/* PAN Card Number */}
           <div className="form-group">
-            <label>PAN Card Number</label>
+            <label>PAN Card Number(10 digits)<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="panCard"
@@ -752,7 +785,7 @@ const handleSubmit = async (event) => {
 
           {/* Education Qualification */}
           <div className="form-group">
-            <label>Education Qualification</label>
+            <label>Education Qualification<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="education"
@@ -764,7 +797,7 @@ const handleSubmit = async (event) => {
 
           {/* Profession */}
           <div className="form-group">
-            <label>Profession</label>
+            <label>Profession<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="profession"
@@ -776,7 +809,7 @@ const handleSubmit = async (event) => {
 
           {/* Mobile Number */}
           <div className="form-group">
-            <label>Mobile Number</label>
+            <label>Mobile Number(10 digits)<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="mobileNumber"
@@ -788,7 +821,7 @@ const handleSubmit = async (event) => {
 
           {/* Alternate Contact Number */}
           <div className="form-group">
-            <label>Alternate Contact Number</label>
+            <label>Alternate Contact Number(10 digits)<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="alternateContact"
@@ -800,7 +833,7 @@ const handleSubmit = async (event) => {
 
           {/* Email ID */}
           <div className="form-group">
-            <label>Email ID</label>
+            <label>Email ID<span className="required-asterisk">*</span></label>
             <input
               type="text"
               name="email"
@@ -951,7 +984,7 @@ const handleSubmit = async (event) => {
 
           {/* Whether Rented */}
           <div className="form-group">
-            <label>Whether Rented:</label>
+            <label>Whether Rented:<span className="required-asterisk">*</span></label>
             <div className="membership-options">
               <div>
                 <input
@@ -979,8 +1012,9 @@ const handleSubmit = async (event) => {
           </div>
 
           {/* Residential Address (if not living in society) */}
+          {formData.rented === "yes" && (
           <div className="form-group">
-            <label htmlFor="residential-address">Residential Address</label>
+            <label htmlFor="residential-address">Residential Address<span className="required-asterisk">*</span></label>
             <input
               type="text"
               id="residential-address"
@@ -990,10 +1024,12 @@ const handleSubmit = async (event) => {
               placeholder="Enter residential address"
             />
           </div>
+        )}
 
           {/* Details of Tenants */}
+          {formData.rented === "yes" && (
           <div className="form-group">
-            <label>Tenant Details</label>
+            <label>Tenant Details<span className="required-asterisk">*</span></label>
             {formData.tenants?.map((tenant, index) => (
               <div key={index} className="tenant-info">
                 <h4 style={{ fontWeight: "normal", color: "#555" }}>
@@ -1046,6 +1082,7 @@ const handleSubmit = async (event) => {
               + Add Tenant
             </button>
           </div>
+          )}
 
           {/* Declaration Checkbox */}
           <div className="form-group-checkbox">
@@ -1057,13 +1094,13 @@ const handleSubmit = async (event) => {
                 onChange={handleCheckboxChange}
               />
               I hereby certify that the information furnished above is correct
-              and true to my knowledge.
+              and true to my knowledge.<span className="required-asterisk">*</span>
             </label>
           </div>
 
           {/* Date */}
           <div className="form-group">
-            <label htmlFor="date">Date</label>
+            <label htmlFor="date">Date<span className="required-asterisk">*</span></label>
             <input
               type="date"
               id="date"
@@ -1074,7 +1111,7 @@ const handleSubmit = async (event) => {
           </div>
 
           <div className="form-group">
-            <label>Photograph</label>
+            <label>Photograph(less than 5mb)<span className="required-asterisk">*</span></label>
             <input
               type="file"
               name="photo"
@@ -1093,7 +1130,7 @@ const handleSubmit = async (event) => {
 
           {/* Specimen Signature */}
           <div className="form-group">
-            <label>Specimen Signature</label>
+            <label>Specimen Signature(less than 5 mb)<span className="required-asterisk">*</span></label>
             <input
               type="file"
               name="signature"
@@ -1126,112 +1163,63 @@ const handleSubmit = async (event) => {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
 
             <div className="preview-content">
-              <div className="photo">
-                <img src={URL.createObjectURL(formData.photo)} 
-                alt="A description of the"
-                />
-              </div>
+            {formData.photo && (
+          <div className="photo">
+            <img src={URL.createObjectURL(formData.photo)} alt="Uploaded preview" />
+          </div>
+        )}
               {/* Membership Details */}
               <div className="preview-section">
                 <center><h3>Membership Details</h3></center>
-                <p>
-                  <strong>Membership Type:</strong> {formData.membershipType}
-                </p>
-                <p>
-                  <strong>Share Certificate No:</strong>{" "}
-                  {formData.shareCertificateNo}
-                </p>
-                <p>
-                  <strong>Name:</strong> {formData.firstName}{" "}
-                  {formData.middleName} {formData.lastName}
-                </p>
-                <p>
-                  <strong>Flat Details:</strong> {formData.flatDetails}
-                </p>
-                <p>
-                  <strong>Wing Name:</strong> {formData.wingName}
-                </p>
-                <p>
-                  <strong>Flat No:</strong> {formData.flatNo}
-                </p>
-                <p>
-                  <strong>Area of Flat:</strong> {formData.flatArea}
-                </p>
-                <p>
-                  <strong>Date of Birth:</strong> {formData.dob}
-                </p>
-                <p>
-                  <strong>Gender:</strong> {formData.gender}
-                </p>
-                <p>
-                  <strong>Marital Status:</strong> {formData.maritalStatus}
-                </p>
-                <p>
-                  <strong>Father/Mother/Spouse Name:</strong>{" "}
-                  {formData.parentOrSpouseName}
-                </p>
+                {formData.membershipType && <p><strong>Membership Type:</strong> {formData.membershipType}</p>}
+          {formData.shareCertificateNo && <p><strong>Share Certificate No:</strong> {formData.shareCertificateNo}</p>}
+          {(formData.firstName || formData.middleName || formData.lastName) && (
+            <p><strong>Name:</strong> {formData.firstName} {formData.middleName} {formData.lastName}</p>
+          )}
+          {formData.flatDetails && <p><strong>Flat Details:</strong> {formData.flatDetails}</p>}
+          {formData.wingName && <p><strong>Wing Name:</strong> {formData.wingName}</p>}
+          {formData.flatNo && <p><strong>Flat No:</strong> {formData.flatNo}</p>}
+          {formData.flatArea && <p><strong>Area of Flat:</strong> {formData.flatArea}</p>}
+          {formData.dob && <p><strong>Date of Birth:</strong> {formData.dob}</p>}
+          {formData.gender && <p><strong>Gender:</strong> {formData.gender}</p>}
+          {formData.maritalStatus && <p><strong>Marital Status:</strong> {formData.maritalStatus}</p>}
+          {formData.parentOrSpouseName && (
+            <p><strong>Father/Mother/Spouse Name:</strong> {formData.parentOrSpouseName}</p>
+          )}
               </div>
 
               {/* Guardian, Religion, Nationality, Aadhar, PAN, and Other Fields */}
               <div className="preview-section">
-                <p>
-                  <strong>Name of Guardian (In case of Minor):</strong>{" "}
-                  {formData.guardianName}
-                </p>
-                <p>
-                  <strong>Religion:</strong> {formData.religion}
-                </p>
-                <p>
-                  <strong>Nationality:</strong> {formData.nationality}
-                </p>
-                {formData.nationality === "others" && (
-                  <p>
-                    <strong>Other Country:</strong> {formData.otherCountry}
-                  </p>
-                )}
-                <p>
-                  <strong>Aadhar No:</strong> {formData.aadhar}
-                </p>
-                <p>
-                  <strong>PAN Card No:</strong> {formData.panCard}
-                </p>
-                <p>
-                  <strong>Educational Qualifications:</strong>{" "}
-                  {formData.education}
-                </p>
-                <p>
-                  <strong>Profession:</strong> {formData.profession}
-                </p>
-                <p>
-                  <strong>Mobile Number:</strong> {formData.mobileNumber}
-                </p>
-                <p>
-                  <strong>Alternate Contact No:</strong>{" "}
-                  {formData.alternateContact}
-                </p>
-                <p>
-                  <strong>Email ID:</strong> {formData.email}
-                </p>
-                <p>
-                  <strong>Pet Details:</strong> {formData.petDetails}
-                </p>
-                <p>
-                  <strong>Whether Rented:</strong> {formData.rented}
-                </p>
-                <p>
-                  <strong>Residential Address:</strong>{" "}
-                  {formData.residentialAddress}
-                </p>
-                <p>
-                  <strong>Declaration:</strong>{" "}
-                  {formData.declaration ? "Yes" : "No"}
-                </p>
-                <p>
-                  <strong>Date:</strong> {formData.date}
-                </p>
+              {formData.guardianName && (
+            <p><strong>Name of Guardian (In case of Minor):</strong> {formData.guardianName}</p>
+          )}
+          {formData.religion && <p><strong>Religion:</strong> {formData.religion}</p>}
+          {formData.nationality && <p><strong>Nationality:</strong> {formData.nationality}</p>}
+          {formData.nationality === "others" && formData.otherCountry && (
+            <p><strong>Other Country:</strong> {formData.otherCountry}</p>
+          )}
+          {formData.aadhar && <p><strong>Aadhar No:</strong> {formData.aadhar}</p>}
+          {formData.panCard && <p><strong>PAN Card No:</strong> {formData.panCard}</p>}
+          {formData.education && <p><strong>Educational Qualifications:</strong> {formData.education}</p>}
+          {formData.profession && <p><strong>Profession:</strong> {formData.profession}</p>}
+          {formData.mobileNumber && <p><strong>Mobile Number:</strong> {formData.mobileNumber}</p>}
+          {formData.alternateContact && (
+            <p><strong>Alternate Contact No:</strong> {formData.alternateContact}</p>
+          )}
+          {formData.email && <p><strong>Email ID:</strong> {formData.email}</p>}
+          {formData.petDetails && <p><strong>Pet Details:</strong> {formData.petDetails}</p>}
+          {formData.rented && <p><strong>Whether Rented:</strong> {formData.rented}</p>}
+          {formData.residentialAddress && (
+            <p><strong>Residential Address:</strong> {formData.residentialAddress}</p>
+          )}
+          {formData.declaration !== undefined && (
+            <p><strong>Declaration:</strong> {formData.declaration ? "Yes" : "No"}</p>
+          )}
+          {formData.date && <p><strong>Date:</strong> {formData.date}</p>}
               </div>
 
               {/* Family Members Table */}
+              {formData.familyMembers?.length > 0 && (
               <div className="preview-section">
                 <h4>Family Members</h4>
                 <table>
@@ -1253,10 +1241,14 @@ const handleSubmit = async (event) => {
                   </tbody>
                 </table>
               </div>
+              )}
 
               {/* Vehicles Table */}
+              
               <div className="preview-section">
-                <h4>4-Wheelers</h4>
+                
+                {formData.fourWheelers?.length > 0 && (<h4>4-Wheelers</h4>)}
+                {formData.fourWheelers?.length > 0 && (
                 <table>
                   <thead>
                     <tr>
@@ -1279,8 +1271,10 @@ const handleSubmit = async (event) => {
                     ))}
                   </tbody>
                 </table>
+              )}
 
-                <h4>2-Wheelers</h4>
+{formData.twoWheelers?.length > 0 && (<h4>2-Wheelers</h4>)}
+                {formData.twoWheelers?.length > 0 && (
                 <table>
                   <thead>
                     <tr>
@@ -1303,10 +1297,14 @@ const handleSubmit = async (event) => {
                     ))}
                   </tbody>
                 </table>
+                )}
               </div>
 
+
               <div className="preview-section">
-                <h4>Details of Tenants</h4>
+              
+              {formData.tenants?.length > 0 && (<h4>Details of Tenants</h4>)}
+                {formData.tenants?.length > 0 && (
                 <table>
                   <thead>
                     <tr>
@@ -1327,6 +1325,7 @@ const handleSubmit = async (event) => {
                     ))}
                   </tbody>
                 </table>
+              )}
               </div>
 
               {/* Photograph and Signature */}

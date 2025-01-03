@@ -234,9 +234,9 @@ app.post("/send-email", async (req, res) => {
     });
 
     const mailOptions = {
-        from: `Form Submission <jeetshah2703@gmail.com>`, // Must match the authenticated account
+        from: `Form Submission <bajajemerald69@gmail.com>`, // Must match the authenticated account
         replyTo: email1,
-        to: "jeetshah2703@gmail.com", // Receiver's email
+        to: "bajajemerald69@gmail.com", // Receiver's email
         subject: subj,
         text: `You have received a form submission from: ${email1}.`,
       attachments: [

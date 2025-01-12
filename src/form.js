@@ -11,7 +11,6 @@ const UserForm = () => {
     firstName: "",
     middleName: "",
     lastName: "",
-    flatDetails: "",
     wingName: "",
     flatNo: "",
     flatArea: "",
@@ -159,7 +158,7 @@ const UserForm = () => {
       ...formData,
       tenants: [
         ...formData.tenants,
-        { name: "", dob: "", gender: "", mobileNo: "" },
+        { name: "", dob: "", gender: "", mobileNo: "", agreementDate: "" },
       ],
     });
   };
@@ -195,7 +194,6 @@ const UserForm = () => {
       firstName,
       middleName,
       lastName,
-      flatDetails,
       wingName,
       flatNo,
       flatArea,
@@ -258,7 +256,6 @@ const UserForm = () => {
     
       // Residential Information
       else if (rented === "yes" && !residentialAddress) return 'Residential Address is mandatory.';
-      else if (!flatDetails) return 'Flat Details are mandatory.';
       else if (!wingName) return 'Wing Name is mandatory.';
       else if (!flatNo) return 'Flat Number is mandatory.';
       else if (!flatArea) return 'Flat Area is mandatory.';
@@ -266,7 +263,16 @@ const UserForm = () => {
       // Membership Detail
     
       // Family Members
+
       else if (!familyMembers || familyMembers.length === 0) return 'Please add at least one Family Member.';
+      else if(familyMembers || familyMembers.length === 0) {
+        for (let i = 0; i < familyMembers.length; i++) {
+          if(!familyMembers[i].name) return `Name is missing for Family Member ${i + 1}.`;
+          else if (!familyMembers[i].dob) return `Date of Birth is missing for Family Member ${i + 1}.`;
+          else if (!familyMembers[i].relation) return `Relation is missing for Family Member ${i + 1}.`;
+        }
+      }
+
     
       // // Vehicles
       // else if (!fourWheelers || fourWheelers.length === 0) return 'Four Wheeler details are mandatory.';
@@ -279,7 +285,15 @@ const UserForm = () => {
     
       // Pets
       // else if (petDetails && petDetails.length === 0) return 'Pet Details are mandatory if you have pets.';
-    
+      else if (rented === "yes" && tenants.length > 0) {
+        for (let i = 0; i < tenants.length; i++) {
+          if(!tenants[i].name) return `Name for Tenant ${i + 1} is mandatory.`;
+          else if (!tenants[i].dob) return `Date of birth for Tenant ${i + 1} is mandatory.`;
+          else if (!tenants[i].gender) return `Gender for Tenant ${i + 1} is mandatory.`;
+          else if (!tenants[i].mobileNo) return `Mobile number for Tenant ${i + 1} is mandatory.`;
+          else if (!tenants[i].agreementDate) return `Agreement Date for Tenant ${i + 1} is mandatory.`;
+        }
+      }
       // Declaration
       else if (!declaration) return 'You must accept the declaration.';
     
@@ -454,7 +468,7 @@ const handleSubmit = async (event) => {
 
       const email1 = formData.email; // Use the user's email for "from" in the email
       const fileName = `${formData.firstName}_${formData.middleName}_${formData.lastName}_form.pdf`;
-      const subj = formData.flatNo;
+      const subj = `${formData.flatNo}-${formData.wingName}`;
 
       // Call the send-email API
       const emailResponse = await axios.post(
@@ -488,7 +502,7 @@ const handleSubmit = async (event) => {
   return (
     <div className="form-container">
       <div className="form-content">
-        <h2 className="form-title">User Form</h2>
+        <h2 className="form-title">Society Membership Form</h2>
         <form>
           {/* Membership Type */}
           <div className="form-group">
@@ -564,26 +578,24 @@ const handleSubmit = async (event) => {
 
           {/* Flat Details */}
           <div className="form-group">
-            <label>Flat Details<span className="required-asterisk">*</span></label>
-            <input
-              type="text"
-              name="flatDetails"
-              value={formData.flatDetails}
-              onChange={handleChange}
-              
-            />
+            <label>Flat Details</label>
           </div>
 
           {/* Wing Name */}
           <div className="form-group">
             <label>Wing Name<span className="required-asterisk">*</span></label>
-            <input
-              type="text"
+            <select
               name="wingName"
               value={formData.wingName}
               onChange={handleChange}
               
-            />
+            >
+              <option value="">Select Wing</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
           </div>
 
           {/* Flat No */}
@@ -600,14 +612,19 @@ const handleSubmit = async (event) => {
 
           {/* Area of Flat */}
           <div className="form-group">
-            <label>Area of Flat<span className="required-asterisk">*</span></label>
-            <input
-              type="text"
+            <label>Flat Area<span className="required-asterisk">*</span></label>
+            <select
               name="flatArea"
               value={formData.flatArea}
               onChange={handleChange}
               
-            />
+            >
+              <option value="">Select Flat Area</option>
+              <option value="125sqft">125 sqft</option>
+              <option value="125sqft">125 sqft</option>
+              <option value="125sqft">125 sqft</option>
+              <option value="125sqft">125 sqft</option>
+            </select>
           </div>
 
           {/* Date of Birth */}
@@ -1050,7 +1067,6 @@ const handleSubmit = async (event) => {
                   name="dob"
                   value={tenant.dob}
                   onChange={(e) => handleTenantChange(e, index)}
-                  
                 />
 
                 <select
@@ -1074,6 +1090,14 @@ const handleSubmit = async (event) => {
                   onChange={(e) => handleTenantChange(e, index)}
                   placeholder="Enter mobile number"
                   
+                />
+                <input
+                  type="date"
+                  placeholder="Date of agreement"
+                  id={`tenant-agreementDate-${index}`}
+                  name="agreementDate"
+                  value={tenant.agreementDate}
+                  onChange={(e) => handleTenantChange(e, index)}
                 />
                 <button className="delete-btn" onClick={() => deleteTenant(index)}>Delete</button>
               </div>
@@ -1170,13 +1194,13 @@ const handleSubmit = async (event) => {
         )}
               {/* Membership Details */}
               <div className="preview-section">
-                <center><h3>Membership Details</h3></center>
+                <center><h3>Society Membership Form</h3></center>
                 {formData.membershipType && <p><strong>Membership Type:</strong> {formData.membershipType}</p>}
           {formData.shareCertificateNo && <p><strong>Share Certificate No:</strong> {formData.shareCertificateNo}</p>}
           {(formData.firstName || formData.middleName || formData.lastName) && (
             <p><strong>Name:</strong> {formData.firstName} {formData.middleName} {formData.lastName}</p>
           )}
-          {formData.flatDetails && <p><strong>Flat Details:</strong> {formData.flatDetails}</p>}
+          {<p><strong>Flat Details:</strong></p>}
           {formData.wingName && <p><strong>Wing Name:</strong> {formData.wingName}</p>}
           {formData.flatNo && <p><strong>Flat No:</strong> {formData.flatNo}</p>}
           {formData.flatArea && <p><strong>Area of Flat:</strong> {formData.flatArea}</p>}
@@ -1212,9 +1236,7 @@ const handleSubmit = async (event) => {
           {formData.residentialAddress && (
             <p><strong>Residential Address:</strong> {formData.residentialAddress}</p>
           )}
-          {formData.declaration !== undefined && (
-            <p><strong>Declaration:</strong> {formData.declaration ? "Yes" : "No"}</p>
-          )}
+          
           {formData.date && <p><strong>Date:</strong> {formData.date}</p>}
               </div>
 
@@ -1312,6 +1334,7 @@ const handleSubmit = async (event) => {
                       <th>Date of Birth</th>
                       <th>Gender</th>
                       <th>Mobile Number</th>
+                      <th>Agreement Date</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1321,12 +1344,35 @@ const handleSubmit = async (event) => {
                         <td>{tenant.dob}</td>
                         <td>{tenant.gender}</td>
                         <td>{tenant.mobileNo}</td>
+                        <td>{tenant.agreementDate}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               )}
               </div>
+
+              {formData.declaration !== undefined && (
+            <div className="preview-section">
+            <h4>Declaration</h4>
+            <div className="declaration">
+              <input
+                type="checkbox"
+                checked={formData.declaration}
+                readOnly
+                style={{
+                  marginRight: "10px",
+                  transform: "scale(1.5)",
+                  pointerEvents: "none",
+                }}
+              />
+              <label>
+                I hereby certify that the information furnished above is correct
+                and true to my knowledge.
+              </label>
+            </div>
+          </div>
+          )}
 
               {/* Photograph and Signature */}
               {/* <div className="preview-section">

@@ -3,6 +3,7 @@ import "./form.css";
 import axios from "axios";
 import html2pdf from "html2pdf.js";
 import Swal from "sweetalert2";
+import logo from "./assets/Bajaj Emerald.png"
 
 const UserForm = () => {
   const [formData, setFormData] = useState({
@@ -329,10 +330,10 @@ const UserForm = () => {
   const handleDownload = () => {
 
     const options = {
-      margin: 23,
+      margin: 20,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
-          scale: 4,
+          scale: 2,
           logging: true,
           letterRendering: true,
           useCORS: true
@@ -379,10 +380,10 @@ const UserForm = () => {
 
   const handleDownload1 = () => {
     const options = {
-        margin: 23,
+        margin: 20,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
-            scale: 4,
+            scale: 2,
             logging: true,
             letterRendering: true,
             useCORS: true
@@ -502,6 +503,14 @@ const handleSubmit = async (event) => {
   return (
     <div className="form-container">
       <div className="form-content">
+      <div className="text-center mb-3">
+    <img 
+      src={logo}
+      alt="Society Logo" 
+      className="img-fluid" 
+      style={{ maxWidth: "100%", height: "auto" }}
+    />
+  </div>
         <h2 className="form-title">Society Membership Form</h2>
         <form>
           {/* Membership Type */}
@@ -1194,6 +1203,14 @@ const handleSubmit = async (event) => {
         )}
               {/* Membership Details */}
               <div className="preview-section">
+              <div className="text-center mb-3">
+          <img 
+            src={logo}
+            alt="Society Logo" 
+            className="img-fluid" 
+            style={{ maxWidth: "100%", height: "auto" }}
+          />
+        </div>
                 <center><h3>Society Membership Form</h3></center>
                 {formData.membershipType && <p><strong>Membership Type:</strong> {formData.membershipType}</p>}
           {formData.shareCertificateNo && <p><strong>Share Certificate No:</strong> {formData.shareCertificateNo}</p>}

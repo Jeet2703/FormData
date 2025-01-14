@@ -170,8 +170,8 @@ input[type="file"] {
     background: #fff;
     border-radius: 10px;
     padding: 20px;
-    width: 80%;
-    max-width: 1000px;
+    width: 100%;
+    max-width: 90%;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     text-align: left;
     position: relative;
@@ -191,7 +191,7 @@ input[type="file"] {
 
   .photo {
     position: absolute;
-    top: 20px;
+    top: 15%;
     right: 0px;
   }
   

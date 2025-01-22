@@ -78,7 +78,8 @@ textarea {
 /* Dynamic Sections (Family Members, Vehicles) */
 .family-member,
 .vehicle-details,
-.tenant-info {
+.tenant-info,
+.joint-member {
     border: 1px solid #ddd;
     border-radius: 5px;
     padding: 15px;
@@ -88,7 +89,8 @@ textarea {
 
 .family-member h4,
 .vehicle-details h4,
-.tenant-info h4 {
+.tenant-info h4,
+.joint-member {
     font-weight: bold;
     font-size: 1.1rem;
     margin-bottom: 10px;

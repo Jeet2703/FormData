@@ -7,7 +7,7 @@ import logo from "./assets/Bajaj Emerald.png"
 
 const UserForm = () => {
   const [formData, setFormData] = useState({
-    membershipType: "",
+    jointMembers: [],
     shareCertificateNo: "",
     firstName: "",
     middleName: "",
@@ -123,6 +123,40 @@ const UserForm = () => {
     setFormData({ ...formData, familyMembers: updatedFamilyMembers });
   };
 
+  const addJointMember = () => {
+    setFormData({
+      ...formData,
+      jointMembers: [
+        ...formData.jointMembers,
+        {
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          dob: '',
+          gender: '',
+          maritalStatus: '',
+          mobileNumber: '',
+          email: '',
+        },
+      ],
+    });
+  };
+
+  // Delete Joint Member
+  const deleteJointMember = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      jointMembers: formData.jointMembers.filter((_, i) => i !== index),
+    }));
+  };
+
+  // Handle Joint Member Change
+  const handleJointMemberChange = (e, index, field) => {
+    const updatedJointMembers = [...formData.jointMembers];
+    updatedJointMembers[index][field] = e.target.value;
+    setFormData({ ...formData, jointMembers: updatedJointMembers });
+  };
+
   const addFourWheeler = () => {
     setFormData((prevData) => ({
       ...prevData,
@@ -214,7 +248,7 @@ const UserForm = () => {
   const handlePreview = () => {
     const {
       email,
-      membershipType,
+      jointMembers,
       shareCertificateNo,
       firstName,
       middleName,
@@ -248,8 +282,22 @@ const UserForm = () => {
     // Mandatory field check
     const validateField = () => {
       // Personal Information
-      if (!membershipType) return 'Membership Type is mandatory.';
-      else if (!shareCertificateNo) return 'Share Certificate Number is mandatory.';
+      // if (!jointMembers || jointMembers.length === 0) return 'Please add at least one Family Member.';
+      if(jointMembers && jointMembers.length === 0) {
+        for (let i = 0; i < jointMembers.length; i++) {
+          if(!jointMembers[i].firstName) return `First name is missing for Joint Member ${i + 1}.`;
+          else if (!jointMembers[i].middleName) return `Middle name is missing for Joint Member ${i + 1}.`;
+          else if (!jointMembers[i].lastName) return `Last name is missing for Joint Member ${i + 1}.`;
+          else if (!jointMembers[i].dob) return `Date of Birth is missing for Joint Member ${i + 1}.`;
+          else if (!jointMembers[i].gender) return `Gender is missing for Joint Member ${i + 1}.`;
+          else if (!jointMembers[i].maritalStatus) return `Marital status is missing for Joint Member ${i + 1}.`;
+          else if (!jointMembers[i].mobileNumber) return `Mobile number is missing for Joint Member ${i + 1}.`;
+          else if (!/^\d{10}$/.test(jointMembers[i].mobileNumber)) return 'Mobile number must be exactly 10 digits.';
+          else if (!jointMembers[i].email) return `Email is missing for Joint Member ${i + 1}.`;
+          else if (!/^\S+@\S+\.\S+$/.test(jointMembers[i].email)) return 'Invalid email format.';
+        }
+      }
+      if (!shareCertificateNo) return 'Share Certificate Number is mandatory.';
       else if (!firstName) return 'First Name is mandatory.';
       else if (!middleName) return 'Middle Name is mandatory.';
       else if (!lastName) return 'Last Name is mandatory.';
@@ -296,6 +344,7 @@ const UserForm = () => {
         for (let i = 0; i < familyMembers.length; i++) {
           if(!familyMembers[i].name) return `Name is missing for Family Member ${i + 1}.`;
           else if (!familyMembers[i].dob) return `Date of Birth is missing for Family Member ${i + 1}.`;
+          else if (new Date(familyMembers[i].dob) > new Date()) return `Date of Birth cannot be in future for Family Member ${i + 1}.`;
           else if (!familyMembers[i].relation) return `Relation is missing for Family Member ${i + 1}.`;
         }
       }
@@ -310,12 +359,16 @@ const UserForm = () => {
       // // Tenants
       else if (rented === "yes" && (!tenants || tenants.length === 0)) return 'Tenant details are mandatory for rented properties.';
     
+      else if (!date) return 'Date is mandatory.';
+      else if (new Date(date) > new Date()) return 'Date cannot be in the future.';
+
       // Pets
       // else if (petDetails && petDetails.length === 0) return 'Pet Details are mandatory if you have pets.';
       else if (rented === "yes" && tenants.length > 0) {
         for (let i = 0; i < tenants.length; i++) {
           if(!tenants[i].name) return `Name for Tenant ${i + 1} is mandatory.`;
           else if (!tenants[i].dob) return `Date of birth for Tenant ${i + 1} is mandatory.`;
+          else if (new Date(tenants[i].dob) > new Date()) return `Date of Birth cannot be in future for Tenant ${i + 1}.`;
           else if (!tenants[i].gender) return `Gender for Tenant ${i + 1} is mandatory.`;
           else if (!tenants[i].mobileNo) return `Mobile number for Tenant ${i + 1} is mandatory.`;
           else if (!tenants[i].agreementDate) return `Agreement Date for Tenant ${i + 1} is mandatory.`;
@@ -324,9 +377,7 @@ const UserForm = () => {
       // Declaration
       else if (!declaration) return 'You must accept the declaration.';
     
-      // Date
-      else if (!date) return 'Date is mandatory.';
-      else if (new Date(date) > new Date()) return 'The date cannot be in the future.';
+      
     
       return null; // No errors found
     };
@@ -542,30 +593,88 @@ const handleSubmit = async (event) => {
           {/* Membership Type */}
           <div className="form-group">
             <label>Membership Type<span className="required-asterisk">*</span></label>
-            <div className="membership-options">
-              <div>
-                <input
-                  type="radio"
-                  name="membershipType"
-                  value="member"
-                  onChange={handleChange}
-                  checked={formData.membershipType === "member"}
-                  id="member"
-                />
-                <label htmlFor="member">Member</label>
-              </div>
-              <div>
-                <input
-                  type="radio"
-                  name="membershipType"
-                  value="jointMember"
-                  onChange={handleChange}
-                  checked={formData.membershipType === "jointMember"}
-                  id="joint-member"
-                />
-                <label htmlFor="joint-member">Joint Member</label>
-              </div>
-            </div>
+            <div className="form-group">
+  
+        {formData.jointMembers?.map((member, index) => (
+          <div key={index} className="joint-member">
+            <h4 style={{ fontWeight: "normal", color: "#555" }}>
+              Joint Member {index + 1}
+            </h4>
+            <input
+              type="text"
+              name={`firstName${index}`}
+              placeholder="First Name"
+              value={member.firstName}
+              onChange={(e) => handleJointMemberChange(e, index, "firstName")}
+            />
+            <input
+              type="text"
+              name={`middleName${index}`}
+              placeholder="Middle Name"
+              value={member.middleName}
+              onChange={(e) => handleJointMemberChange(e, index, "middleName")}
+            />
+            <input
+              type="text"
+              name={`lastName${index}`}
+              placeholder="Last Name"
+              value={member.lastName}
+              onChange={(e) => handleJointMemberChange(e, index, "lastName")}
+            />
+            <input
+              type="date"
+              name={`dob${index}`}
+              value={member.dob}
+              onChange={(e) => handleJointMemberChange(e, index, "dob")}
+            />
+            <select
+              name={`gender${index}`}
+              value={member.gender}
+              onChange={(e) => handleJointMemberChange(e, index, "gender")}
+            >
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="thirdGender">Third Gender</option>
+            </select>
+            <select
+              name={`maritalStatus${index}`}
+              value={member.maritalStatus}
+              onChange={(e) =>
+                handleJointMemberChange(e, index, "maritalStatus")
+              }
+            >
+              <option value="">Select Marital Status</option>
+              <option value="married">Married</option>
+              <option value="unmarried">Unmarried</option>
+              <option value="others">Others</option>
+            </select>
+            <input
+              type="text"
+              name={`mobileNumber${index}`}
+              placeholder="Mobile Number"
+              value={member.mobileNumber}
+              onChange={(e) => handleJointMemberChange(e, index, "mobileNumber")}
+            />
+            <input
+              type="text"
+              name={`email${index}`}
+              placeholder="Email ID"
+              value={member.email}
+              onChange={(e) => handleJointMemberChange(e, index, "email")}
+            />
+            <button
+              className="delete-btn"
+              onClick={() => deleteJointMember(index)}
+            >
+              Delete
+            </button>
+          </div>
+        ))}
+        <button type="button" onClick={addJointMember}>
+          + Add Joint Member
+        </button>
+      </div>
           </div>
 
           {/* Share Certificate No */}
@@ -1267,7 +1376,7 @@ const handleSubmit = async (event) => {
           />
         </div>
                 <center><h3>Society Membership Form</h3></center>
-                {formData.membershipType && <p><strong>Membership Type:</strong> {formData.membershipType}</p>}
+                
           {formData.shareCertificateNo && <p><strong>Share Certificate No:</strong> {formData.shareCertificateNo}</p>}
           {(formData.firstName || formData.middleName || formData.lastName) && (
             <p><strong>Name:</strong> {formData.firstName} {formData.middleName} {formData.lastName}</p>
@@ -1312,7 +1421,35 @@ const handleSubmit = async (event) => {
           
           {formData.date && <p><strong>Date:</strong> {formData.date}</p>}
               </div>
-
+              {formData.jointMembers?.length > 0 && (
+              <div className="preview-section">
+                <h4>Joint Members</h4>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Date of Birth</th>
+                      <th>Gender</th>
+                      <th>Marital Status</th>
+                      <th>Mobile Number</th>
+                      <th>Email</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {formData.jointMembers.map((member, index) => (
+                      <tr key={index}>
+                        <td>{member.firstName} {member.middleName} {member.lastName}</td>
+                        <td>{member.dob}</td>
+                        <td>{member.gender}</td>
+                        <td>{member.maritalStatus}</td>
+                        <td>{member.mobileNumber}</td>
+                        <td>{member.email}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              )}
               {/* Family Members Table */}
               {formData.familyMembers?.length > 0 && (
               <div className="preview-section">

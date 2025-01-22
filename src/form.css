@@ -87,6 +87,16 @@ textarea {
     background: #f9f9f9;
 }
 
+.date-picker {
+  width: 100%;
+  padding: 8px; /* Optional: for better spacing inside the input */
+  box-sizing: border-box; /* Ensures padding does not affect width */
+}
+
+.date-picker-wrapper {
+  width: 100%; /* Ensures the wrapper takes 100% width */
+}
+
 .family-member h4,
 .vehicle-details h4,
 .tenant-info h4,
@@ -292,4 +302,15 @@ input[type="file"] {
 .required-asterisk {
   color: red;
   margin-left: 4px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #555;
 }

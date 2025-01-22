@@ -3,7 +3,10 @@ import "./form.css";
 import axios from "axios";
 import html2pdf from "html2pdf.js";
 import Swal from "sweetalert2";
-import logo from "./assets/Bajaj Emerald.png"
+import logo from "./assets/Bajaj Emerald.png";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { ClipLoader } from "react-spinners";
 
 const UserForm = () => {
   const [formData, setFormData] = useState({
@@ -46,6 +49,7 @@ const UserForm = () => {
 
   const [flatAreaOptions, setFlatAreaOptions] = useState([]);
   const [isFlatAreaText, setIsFlatAreaText] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [preview, setPreview] = useState(false); // This controls the visibility of the preview modal
 
@@ -60,12 +64,12 @@ const UserForm = () => {
     console.log("month diff: ", monthDifference);
     const dayDifference = today.getDate() - birthDate.getDate();
     console.log("day diff: ", dayDifference);
-  
+
     // Adjust age if the current month/day is before the birth month/day
     if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
       age--;
     }
-  
+
     return age;
   };
 
@@ -162,7 +166,7 @@ const UserForm = () => {
       ...prevData,
       fourWheelers: [
         ...(prevData.fourWheelers || []),
-        { registration: "", parkingSlot: "", make: "", model: "", type: "" },
+        { owndership: "", registration: "", parkingSlot: "", make: "", model: "", type: "" },
       ],
     }));
   };
@@ -173,7 +177,7 @@ const UserForm = () => {
       fourWheelers: prevData.fourWheelers.filter((_, i) => i !== index),
     }));
   };
-  
+
 
   const handleFourWheelerChange = (e, index, field) => {
     const updatedFourWheelers = [...formData.fourWheelers];
@@ -186,7 +190,7 @@ const UserForm = () => {
       ...prevData,
       twoWheelers: [
         ...(prevData.twoWheelers || []),
-        { registration: "", parkingSlot: "", make: "", model: "", type: "" },
+        { owndership: "", registration: "", parkingSlot: "", make: "", model: "", type: "" },
       ],
     }));
   };
@@ -197,7 +201,7 @@ const UserForm = () => {
       twoWheelers: prevData.twoWheelers.filter((_, i) => i !== index),
     }));
   };
-  
+
 
   const handleTwoWheelerChange = (e, index, field) => {
     const updatedTwoWheelers = [...formData.twoWheelers];
@@ -205,11 +209,23 @@ const UserForm = () => {
     setFormData({ ...formData, twoWheelers: updatedTwoWheelers });
   };
 
+
+  // const handleTenantChange = (e, index, field) => {
+  //   const updatedTenants = [...formData.tenants];
+  //   updatedTenants[index][field] = e.target.value;
+  //   setFormData({ ...formData, tenants: updatedTenants });
+
+  // };
+
   const handleTenantChange = (e, index, field) => {
     const { name, value } = e.target;
     const tenants = [...formData.tenants];
     tenants[index][name] = value;
     setFormData({ ...formData, tenants });
+
+    const updatedTenants = [...formData.tenants];
+    updatedTenants[index][field] = e.target.value;
+    setFormData({ ...formData, tenants: updatedTenants });
   };
 
   const addTenant = () => {
@@ -223,12 +239,12 @@ const UserForm = () => {
   };
 
   const deleteTenant = (index) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      tenants: prevData.tenants.filter((_, i) => i !== index),
+    setFormData((prev) => ({
+      ...prev,
+      tenants: formData.tenants.filter((_, i) => i !== index),
     }));
   };
-  
+
 
   const handleCheckboxChange = () => {
     setFormData({ ...formData, declaration: !formData.declaration });
@@ -249,7 +265,7 @@ const UserForm = () => {
     const {
       email,
       jointMembers,
-      shareCertificateNo,
+      // shareCertificateNo,
       firstName,
       middleName,
       lastName,
@@ -283,22 +299,8 @@ const UserForm = () => {
     const validateField = () => {
       // Personal Information
       // if (!jointMembers || jointMembers.length === 0) return 'Please add at least one Family Member.';
-      if(jointMembers && jointMembers.length === 0) {
-        for (let i = 0; i < jointMembers.length; i++) {
-          if(!jointMembers[i].firstName) return `First name is missing for Joint Member ${i + 1}.`;
-          else if (!jointMembers[i].middleName) return `Middle name is missing for Joint Member ${i + 1}.`;
-          else if (!jointMembers[i].lastName) return `Last name is missing for Joint Member ${i + 1}.`;
-          else if (!jointMembers[i].dob) return `Date of Birth is missing for Joint Member ${i + 1}.`;
-          else if (!jointMembers[i].gender) return `Gender is missing for Joint Member ${i + 1}.`;
-          else if (!jointMembers[i].maritalStatus) return `Marital status is missing for Joint Member ${i + 1}.`;
-          else if (!jointMembers[i].mobileNumber) return `Mobile number is missing for Joint Member ${i + 1}.`;
-          else if (!/^\d{10}$/.test(jointMembers[i].mobileNumber)) return 'Mobile number must be exactly 10 digits.';
-          else if (!jointMembers[i].email) return `Email is missing for Joint Member ${i + 1}.`;
-          else if (!/^\S+@\S+\.\S+$/.test(jointMembers[i].email)) return 'Invalid email format.';
-        }
-      }
-      if (!shareCertificateNo) return 'Share Certificate Number is mandatory.';
-      else if (!firstName) return 'First Name is mandatory.';
+      // if (!shareCertificateNo) return 'Share Certificate Number is mandatory.';
+      if (!firstName) return 'First Name is mandatory.';
       else if (!middleName) return 'Middle Name is mandatory.';
       else if (!lastName) return 'Last Name is mandatory.';
       else if (!dob) return 'Date of Birth is mandatory.';
@@ -310,16 +312,16 @@ const UserForm = () => {
       else if (!religion) return 'Religion is mandatory.';
       else if (!nationality) return 'Nationality is mandatory.';
       else if (nationality === 'Other' && !otherCountry) return 'Please specify the country if Nationality is "Other".';
-    
+
       // Identification Information
       else if (!aadhar) return 'Aadhar number is mandatory.';
       else if (!/^\d{12}$/.test(aadhar)) return 'Aadhar number must be exactly 12 digits.';
       else if (!panCard) return 'PAN Card number is mandatory.';
       else if (panCard.length > 10) return 'PAN Card number cannot exceed 10 characters.';
-      else if(panCard.length < 10) return 'PAN Card number cannot be less than 10 characters.';
+      else if (panCard.length < 10) return 'PAN Card number cannot be less than 10 characters.';
       else if (!education) return 'Education Details is mandatory.';
       else if (!profession) return 'Profession is mandatory.';
-    
+
       // Contact Information
       else if (!mobileNumber) return 'Mobile Number is mandatory.';
       else if (!/^\d{10}$/.test(mobileNumber)) return 'Mobile number must be exactly 10 digits.';
@@ -327,38 +329,51 @@ const UserForm = () => {
       else if (!/^\d{10}$/.test(alternateContact)) return 'Alternate contact number must be exactly 10 digits.';
       else if (!email) return 'Email is mandatory.';
       else if (!/^\S+@\S+\.\S+$/.test(email)) return 'Invalid email format.';
-    
+
       // Residential Information
       else if (rented === "yes" && !residentialAddress) return 'Residential Address is mandatory.';
       else if (!wingName) return 'Wing Name is mandatory.';
       else if (!flatNo) return 'Flat Number is mandatory.';
       else if (!flatArea) return 'Flat Area is mandatory.';
       else if (!flatSize) return 'Flat Size is mandatory.';
-    
-      // Membership Detail
-    
-      // Family Members
 
+      // Membership Detail
+      else if (jointMembers && jointMembers.length === 0) {
+        for (let i = 0; i < jointMembers.length; i++) {
+          if (!jointMembers[i].firstName) return `First name is missing for Joint Member ${i + 1}.`;
+          else if (!jointMembers[i].middleName) return `Middle name is missing for Joint Member ${i + 1}.`;
+          else if (!jointMembers[i].lastName) return `Last name is missing for Joint Member ${i + 1}.`;
+          else if (!jointMembers[i].dob) return `Date of Birth is missing for Joint Member ${i + 1}.`;
+          else if (!jointMembers[i].gender) return `Gender is missing for Joint Member ${i + 1}.`;
+          else if (!jointMembers[i].maritalStatus) return `Marital status is missing for Joint Member ${i + 1}.`;
+          else if (!jointMembers[i].mobileNumber) return `Mobile number is missing for Joint Member ${i + 1}.`;
+          else if (!/^\d{10}$/.test(jointMembers[i].mobileNumber)) return 'Mobile number must be exactly 10 digits.';
+          else if (!jointMembers[i].email) return `Email is missing for Joint Member ${i + 1}.`;
+          else if (!/^\S+@\S+\.\S+$/.test(jointMembers[i].email)) return 'Invalid email format.';
+        }
+      }
+
+      // Family Members
       else if (!familyMembers || familyMembers.length === 0) return 'Please add at least one Family Member.';
-      else if(familyMembers || familyMembers.length === 0) {
+      else if (familyMembers || familyMembers.length === 0) {
         for (let i = 0; i < familyMembers.length; i++) {
-          if(!familyMembers[i].name) return `Name is missing for Family Member ${i + 1}.`;
+          if (!familyMembers[i].name) return `Name is missing for Family Member ${i + 1}.`;
           else if (!familyMembers[i].dob) return `Date of Birth is missing for Family Member ${i + 1}.`;
           else if (new Date(familyMembers[i].dob) > new Date()) return `Date of Birth cannot be in future for Family Member ${i + 1}.`;
           else if (!familyMembers[i].relation) return `Relation is missing for Family Member ${i + 1}.`;
         }
       }
 
-    
+
       // // Vehicles
       // else if (!fourWheelers || fourWheelers.length === 0) return 'Four Wheeler details are mandatory.';
       // else if (!twoWheelers || twoWheelers.length === 0) return 'Two Wheeler details are mandatory.';
 
       else if (rented === "yes" && !residentialAddress) return 'Residential Address is mandatory.';
-    
+
       // // Tenants
       else if (rented === "yes" && (!tenants || tenants.length === 0)) return 'Tenant details are mandatory for rented properties.';
-    
+
       else if (!date) return 'Date is mandatory.';
       else if (new Date(date) > new Date()) return 'Date cannot be in the future.';
 
@@ -366,7 +381,7 @@ const UserForm = () => {
       // else if (petDetails && petDetails.length === 0) return 'Pet Details are mandatory if you have pets.';
       else if (rented === "yes" && tenants.length > 0) {
         for (let i = 0; i < tenants.length; i++) {
-          if(!tenants[i].name) return `Name for Tenant ${i + 1} is mandatory.`;
+          if (!tenants[i].name) return `Name for Tenant ${i + 1} is mandatory.`;
           else if (!tenants[i].dob) return `Date of birth for Tenant ${i + 1} is mandatory.`;
           else if (new Date(tenants[i].dob) > new Date()) return `Date of Birth cannot be in future for Tenant ${i + 1}.`;
           else if (!tenants[i].gender) return `Gender for Tenant ${i + 1} is mandatory.`;
@@ -376,12 +391,12 @@ const UserForm = () => {
       }
       // Declaration
       else if (!declaration) return 'You must accept the declaration.';
-    
-      
-    
+
+
+
       return null; // No errors found
     };
-    
+
     // Usage in the Preview Button Handler
     const errorMessage = validateField();
     if (errorMessage) {
@@ -393,7 +408,7 @@ const UserForm = () => {
     } else {
       setPreview(true);
     }
- // Show preview modal when clicked
+    // Show preview modal when clicked
   };
 
   // Function to close the preview modal
@@ -410,22 +425,22 @@ const UserForm = () => {
       margin: 20,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
-          scale: 2,
-          logging: true,
-          letterRendering: true,
-          useCORS: true
+        scale: 2,
+        logging: true,
+        letterRendering: true,
+        useCORS: true
       },
       jsPDF: {
-          unit: 'mm',
-          format: 'a4',
-          orientation: 'portrait',
-          putOnlyUsedFonts: true,
-          compress: true,
-          pageSize: 'A4',
-          // Ensure content breaks correctly between pages
-          autoPaging: true
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait',
+        putOnlyUsedFonts: true,
+        compress: true,
+        pageSize: 'A4',
+        // Ensure content breaks correctly between pages
+        autoPaging: true
       }
-  };
+    };
 
     const element = document.querySelector(".modal-content");
     const downloadButton = document.querySelector(".download-btn-container");
@@ -457,27 +472,27 @@ const UserForm = () => {
 
   const handleDownload1 = () => {
     const options = {
-        margin: 20,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-            scale: 2,
-            logging: true,
-            letterRendering: true,
-            useCORS: true
-        },
-        jsPDF: {
-            unit: 'mm',
-            format: 'a4',
-            orientation: 'portrait',
-            putOnlyUsedFonts: true,
-            compress: true,
-            pageSize: 'A4',
-            autoPaging: true
-        }
+      margin: 20,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        logging: true,
+        letterRendering: true,
+        useCORS: true
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait',
+        putOnlyUsedFonts: true,
+        compress: true,
+        pageSize: 'A4',
+        autoPaging: true
+      }
     };
-    
+
     const element = document.querySelector(".modal-content");
-  
+
     const downloadButton = document.querySelector(".download-btn-container");
 
     // Temporarily hide the download button (keep layout consistent)
@@ -489,203 +504,120 @@ const UserForm = () => {
 
     // Generate the PDF as a base64 string
     return new Promise((resolve, reject) => {
-        html2pdf()
-            .from(element)
-            .set(options)
-            .output('datauristring') // This generates a base64 string instead of saving the PDF
-            .then((pdfBase64) => {
-                resolve(pdfBase64); // Return the base64 string
-                if (downloadButton) {
-                  downloadButton.style.visibility = "visible"; // Restore visibility
-                }
-            })
-            .catch((error) => {
-                console.error("Error generating PDF:", error);
-                reject(error); // Reject if there's an error
-                if (downloadButton) {
-                  downloadButton.style.visibility = "visible"; // Restore visibility
-                }
-            });
+      html2pdf()
+        .from(element)
+        .set(options)
+        .output('datauristring') // This generates a base64 string instead of saving the PDF
+        .then((pdfBase64) => {
+          resolve(pdfBase64); // Return the base64 string
+          if (downloadButton) {
+            downloadButton.style.visibility = "visible"; // Restore visibility
+          }
+        })
+        .catch((error) => {
+          console.error("Error generating PDF:", error);
+          reject(error); // Reject if there's an error
+          if (downloadButton) {
+            downloadButton.style.visibility = "visible"; // Restore visibility
+          }
+        });
     });
-};
+  };
 
-const handleSubmit = async (event) => {
-  event.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
 
-  // Prepare form data for submission
-  const formDataToSubmit = new FormData();
-  Object.keys(formData).forEach((key) => {
-    if (
-      key === "familyMembers" ||
-      key === "fourWheelers" ||
-      key === "twoWheelers" ||
-      key === "tenants"
-    ) {
-      formDataToSubmit.append(key, JSON.stringify(formData[key]));
-    } else {
-      formDataToSubmit.append(key, formData[key]);
-    }
-  });
-
-  try {
-    // Call the submit-form API
-    const formResponse = await axios.post(
-      `${process.env.REACT_APP_BACKEND_URL}/submit-form`, 
-      formDataToSubmit,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
+    // Prepare form data for submission
+    const formDataToSubmit = new FormData();
+    Object.keys(formData).forEach((key) => {
+      if (
+        key === "familyMembers" ||
+        key === "fourWheelers" ||
+        key === "twoWheelers" ||
+        key === "tenants"
+      ) {
+        formDataToSubmit.append(key, JSON.stringify(formData[key]));
+      } else {
+        formDataToSubmit.append(key, formData[key]);
       }
-    );
+    });
 
-    if (formResponse.status === 200) {
-      Swal.fire("Success", "Form submitted successfully!", "success");
-
-      // Generate the PDF as base64 string using handleDownload
-      const pdfData = await handleDownload1();
-      console.log("Generated PDF Data (Base64):", pdfData); // Log the PDF data
-
-      const email1 = formData.email; // Use the user's email for "from" in the email
-      const fileName = `${formData.firstName}_${formData.middleName}_${formData.lastName}_form.pdf`;
-      const subj = `${formData.flatNo}-${formData.wingName}`;
-
-      // Call the send-email API
-      const emailResponse = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/send-email`, 
+    try {
+      // Call the submit-form API
+      const formResponse = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/submit-form`,
+        formDataToSubmit,
         {
-          email1,
-          pdfData,
-          fileName,
-          subj,
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
-      if (emailResponse.data.success) {
-        Swal.fire("Success", "Email sent successfully!", "success");
-      } else {
-        Swal.fire("Error", "Failed to send email.", "error");
+      if (formResponse.status === 200) {
+        Swal.fire("Success", "Form submitted successfully!", "success");
+
+        // Generate the PDF as base64 string using handleDownload
+        const pdfData = await handleDownload1();
+        console.log("Generated PDF Data (Base64):", pdfData); // Log the PDF data
+
+        const email1 = formData.email; // Use the user's email for "from" in the email
+        const fileName = `${formData.firstName}_${formData.middleName}_${formData.lastName}_form.pdf`;
+        const subj = `${formData.wingName}-${formData.flatNo}`;
+
+        // Call the send-email API
+        const emailResponse = await axios.post(
+          `${process.env.REACT_APP_BACKEND_URL}/send-email`,
+          {
+            email1,
+            pdfData,
+            fileName,
+            subj,
+          }
+        );
+
+        if (emailResponse.data.success) {
+          Swal.fire("Success", "Email sent successfully!", "success");
+        } else {
+          Swal.fire("Error", "Failed to send email.", "error");
+        }
       }
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        // Show SweetAlert2 for "email already used" error
+        Swal.fire("Error", error.response.data.message || "Email already used", "error");
+      } else {
+        console.error("Error in handleSubmit:", error);
+        Swal.fire("Error", "Error submitting the form or sending email.", "error");
+      }
+    } finally {
+      setLoading(false); // Reset loading state after the process completes
     }
-  } catch (error) {
-    if (error.response && error.response.status === 400) {
-      // Show SweetAlert2 for "email already used" error
-      Swal.fire("Error", error.response.data.message || "Email already used", "error");
-    } else {
-      console.error("Error in handleSubmit:", error);
-      Swal.fire("Error", "Error submitting the form or sending email.", "error");
-    }
-  }
-};
+  };
 
 
   return (
     <div className="form-container">
       <div className="form-content">
-      <div className="text-center mb-3">
-    <img 
-      src={logo}
-      alt="Society Logo" 
-      className="img-fluid" 
-      style={{ maxWidth: "100%", height: "auto" }}
-    />
-  </div>
+        <div className="text-center mb-3">
+          <img
+            src={logo}
+            alt="Society Logo"
+            className="img-fluid"
+            style={{ maxWidth: "100%", height: "auto" }}
+          />
+        </div>
         <h2 className="form-title">Society Membership Form</h2>
         <form>
-          {/* Membership Type */}
-          <div className="form-group">
-            <label>Membership Type<span className="required-asterisk">*</span></label>
-            <div className="form-group">
-  
-        {formData.jointMembers?.map((member, index) => (
-          <div key={index} className="joint-member">
-            <h4 style={{ fontWeight: "normal", color: "#555" }}>
-              Joint Member {index + 1}
-            </h4>
-            <input
-              type="text"
-              name={`firstName${index}`}
-              placeholder="First Name"
-              value={member.firstName}
-              onChange={(e) => handleJointMemberChange(e, index, "firstName")}
-            />
-            <input
-              type="text"
-              name={`middleName${index}`}
-              placeholder="Middle Name"
-              value={member.middleName}
-              onChange={(e) => handleJointMemberChange(e, index, "middleName")}
-            />
-            <input
-              type="text"
-              name={`lastName${index}`}
-              placeholder="Last Name"
-              value={member.lastName}
-              onChange={(e) => handleJointMemberChange(e, index, "lastName")}
-            />
-            <input
-              type="date"
-              name={`dob${index}`}
-              value={member.dob}
-              onChange={(e) => handleJointMemberChange(e, index, "dob")}
-            />
-            <select
-              name={`gender${index}`}
-              value={member.gender}
-              onChange={(e) => handleJointMemberChange(e, index, "gender")}
-            >
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="thirdGender">Third Gender</option>
-            </select>
-            <select
-              name={`maritalStatus${index}`}
-              value={member.maritalStatus}
-              onChange={(e) =>
-                handleJointMemberChange(e, index, "maritalStatus")
-              }
-            >
-              <option value="">Select Marital Status</option>
-              <option value="married">Married</option>
-              <option value="unmarried">Unmarried</option>
-              <option value="others">Others</option>
-            </select>
-            <input
-              type="text"
-              name={`mobileNumber${index}`}
-              placeholder="Mobile Number"
-              value={member.mobileNumber}
-              onChange={(e) => handleJointMemberChange(e, index, "mobileNumber")}
-            />
-            <input
-              type="text"
-              name={`email${index}`}
-              placeholder="Email ID"
-              value={member.email}
-              onChange={(e) => handleJointMemberChange(e, index, "email")}
-            />
-            <button
-              className="delete-btn"
-              onClick={() => deleteJointMember(index)}
-            >
-              Delete
-            </button>
-          </div>
-        ))}
-        <button type="button" onClick={addJointMember}>
-          + Add Joint Member
-        </button>
-      </div>
-          </div>
 
           {/* Share Certificate No */}
           <div className="form-group">
-            <label>Share Certificate No.<span className="required-asterisk">*</span></label>
+            <label>Certificate No.</label>
             <input
               type="text"
               name="shareCertificateNo"
               value={formData.shareCertificateNo}
               onChange={handleChange}
-              
+
             />
           </div>
 
@@ -697,7 +629,7 @@ const handleSubmit = async (event) => {
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
-              
+
             />
           </div>
           <div className="form-group">
@@ -716,7 +648,7 @@ const handleSubmit = async (event) => {
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
-              
+
             />
           </div>
 
@@ -732,7 +664,7 @@ const handleSubmit = async (event) => {
               name="wingName"
               value={formData.wingName}
               onChange={handleChange}
-              
+
             >
               <option value="">Select Wing</option>
               <option value="A">A</option>
@@ -750,55 +682,55 @@ const handleSubmit = async (event) => {
               name="flatNo"
               value={formData.flatNo}
               onChange={handleChange}
-              
+
             />
           </div>
 
           {/* Area of Flat */}
           <div className="form-group">
-        <label>
-          Flat Size<span className="required-asterisk">*</span>
-        </label>
-        <select
-          name="flatSize"
-          value={formData.flatSize}
-          onChange={handleChange}
-        >
-          <option value="">Select Flat Size</option>
-          <option value="3 bhk">3 BHK</option>
-          <option value="2 bhk">2 BHK</option>
-          <option value="1 bhk">1 BHK</option>
-        </select>
-      </div>
+            <label>
+              Flat Size<span className="required-asterisk">*</span>
+            </label>
+            <select
+              name="flatSize"
+              value={formData.flatSize}
+              onChange={handleChange}
+            >
+              <option value="">Select Flat Size</option>
+              <option value="3 bhk">3 BHK</option>
+              <option value="2 bhk">2 BHK</option>
+              <option value="1 bhk">1 BHK</option>
+            </select>
+          </div>
 
-      {/* Flat Area */}
-      <div className="form-group">
-        <label>
-          Flat Area<span className="required-asterisk">*</span>
-        </label>
-        {isFlatAreaText ? (
-          <input
-            type="text"
-            name="flatArea"
-            value={formData.flatArea}
-            onChange={handleChange}
-            placeholder="Enter flat area (sq ft)"
-          />
-        ) : (
-          <select
-            name="flatArea"
-            value={formData.flatArea}
-            onChange={handleChange}
-          >
-            <option value="">Select Flat Area</option>
-            {flatAreaOptions.map((option, index) => (
-              <option key={index} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
+          {/* Flat Area */}
+          <div className="form-group">
+            <label>
+              Flat Area<span className="required-asterisk">*</span>
+            </label>
+            {isFlatAreaText ? (
+              <input
+                type="text"
+                name="flatArea"
+                value={formData.flatArea}
+                onChange={handleChange}
+                placeholder="Enter flat area (sq ft)"
+              />
+            ) : (
+              <select
+                name="flatArea"
+                value={formData.flatArea}
+                onChange={handleChange}
+              >
+                <option value="">Select Flat Area</option>
+                {flatAreaOptions.map((option, index) => (
+                  <option key={index} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
 
           {/* Date of Birth */}
           <div className="form-group">
@@ -808,7 +740,7 @@ const handleSubmit = async (event) => {
               name="dob"
               value={formData.dob}
               onChange={handleChange}
-              
+
             />
           </div>
 
@@ -819,7 +751,7 @@ const handleSubmit = async (event) => {
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              
+
             >
               <option value="">Select Gender</option>
               <option value="male">Male</option>
@@ -835,7 +767,7 @@ const handleSubmit = async (event) => {
               name="maritalStatus"
               value={formData.maritalStatus}
               onChange={handleChange}
-              
+
             >
               <option value="">Select status</option>
               <option value="married">Married</option>
@@ -852,10 +784,102 @@ const handleSubmit = async (event) => {
               name="parentOrSpouseName"
               value={formData.parentOrSpouseName}
               onChange={handleChange}
-              
+
             />
           </div>
 
+
+          {/* Membership Type */}
+          <div className="form-group">
+            <label>Member Details<span className="required-asterisk">*</span></label>
+            <div className="form-group">
+
+              {formData.jointMembers?.map((member, index) => (
+                <div key={index} className="joint-member">
+                  <h4 style={{ fontWeight: "normal", color: "#555" }}>
+                    Joint Member {index + 1}
+                  </h4>
+                  <input
+                    type="text"
+                    name={`firstName${index}`}
+                    placeholder="First Name"
+                    value={member.firstName}
+                    onChange={(e) => handleJointMemberChange(e, index, "firstName")}
+                  />
+                  <input
+                    type="text"
+                    name={`middleName${index}`}
+                    placeholder="Middle Name"
+                    value={member.middleName}
+                    onChange={(e) => handleJointMemberChange(e, index, "middleName")}
+                  />
+                  <input
+                    type="text"
+                    name={`lastName${index}`}
+                    placeholder="Last Name"
+                    value={member.lastName}
+                    onChange={(e) => handleJointMemberChange(e, index, "lastName")}
+                  />
+
+                  <DatePicker
+                    selected={member.dob ? new Date(member.dob) : null}
+                    onChange={(date) => handleJointMemberChange({ target: { value: date } }, index, "dob")}
+                    placeholderText="Date of Birth"
+                    dateFormat="dd/MM/yyyy"
+                    showPopperArrow={false}
+                    className="date-picker"
+                    wrapperClassName="date-picker-wrapper"
+                  />
+
+                  <select
+                    name={`gender${index}`}
+                    value={member.gender}
+                    onChange={(e) => handleJointMemberChange(e, index, "gender")}
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="thirdGender">Third Gender</option>
+                  </select>
+                  <select
+                    name={`maritalStatus${index}`}
+                    value={member.maritalStatus}
+                    onChange={(e) =>
+                      handleJointMemberChange(e, index, "maritalStatus")
+                    }
+                  >
+                    <option value="">Select Marital Status</option>
+                    <option value="married">Married</option>
+                    <option value="unmarried">Unmarried</option>
+                    <option value="others">Others</option>
+                  </select>
+                  <input
+                    type="text"
+                    name={`mobileNumber${index}`}
+                    placeholder="Mobile Number"
+                    value={member.mobileNumber}
+                    onChange={(e) => handleJointMemberChange(e, index, "mobileNumber")}
+                  />
+                  <input
+                    type="text"
+                    name={`email${index}`}
+                    placeholder="Email ID"
+                    value={member.email}
+                    onChange={(e) => handleJointMemberChange(e, index, "email")}
+                  />
+                  <button
+                    className="delete-btn"
+                    onClick={() => deleteJointMember(index)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={addJointMember}>
+                + Add Joint Member
+              </button>
+            </div>
+          </div>
           {/* Family Members */}
           <div className="form-group">
             <label>Family Members<span className="required-asterisk">*</span></label>
@@ -870,14 +894,16 @@ const handleSubmit = async (event) => {
                   placeholder="Name"
                   value={member.name}
                   onChange={(e) => handleFamilyMemberChange(e, index, "name")}
-                  
+
                 />
-                <input
-                  type="date"
-                  name={`memberDob${index}`}
-                  value={member.dob}
-                  onChange={(e) => handleFamilyMemberChange(e, index, "dob")}
-                  
+                <DatePicker
+                  selected={member.dob ? new Date(member.dob) : null}
+                  onChange={(date) => handleFamilyMemberChange({ target: { value: date } }, index, "dob")}
+                  placeholderText="Date of Birth"
+                  dateFormat="dd/MM/yyyy"
+                  showPopperArrow={false}
+                  className="date-picker"
+                  wrapperClassName="date-picker-wrapper"
                 />
                 <input
                   type="text"
@@ -887,7 +913,7 @@ const handleSubmit = async (event) => {
                   onChange={(e) =>
                     handleFamilyMemberChange(e, index, "relation")
                   }
-                  
+
                 />
                 <button className="delete-btn" onClick={() => deleteFamilyMember(index)}>Delete</button>
               </div>
@@ -899,18 +925,18 @@ const handleSubmit = async (event) => {
 
           {/* Guardian Name (In case of Minor) */}
           {showGuardianField && (
-          <div className="form-group">
-            <label>Guardian Name (Required for minors)<span className="required-asterisk">*</span></label>
-            <input
-              type="text"
-              name="guardianName"
-              value={formData.guardianName}
-              onChange={handleChange}
-              required
-            />
-          </div>
+            <div className="form-group">
+              <label>Guardian Name (Required for minors)<span className="required-asterisk">*</span></label>
+              <input
+                type="text"
+                name="guardianName"
+                value={formData.guardianName}
+                onChange={handleChange}
+                required
+              />
+            </div>
           )}
-        
+
 
           {/* Religion */}
           <div className="form-group">
@@ -920,7 +946,7 @@ const handleSubmit = async (event) => {
               name="religion"
               value={formData.religion}
               onChange={handleChange}
-              
+
             />
           </div>
 
@@ -931,7 +957,7 @@ const handleSubmit = async (event) => {
               name="nationality"
               value={formData.nationality}
               onChange={handleChange}
-              
+
             >
               <option value="">Select Nation</option>
               <option value="indian">Indian</option>
@@ -944,7 +970,7 @@ const handleSubmit = async (event) => {
                 value={formData.otherCountry}
                 onChange={handleChange}
                 placeholder="Country Name"
-                
+
               />
             )}
           </div>
@@ -957,7 +983,7 @@ const handleSubmit = async (event) => {
               name="aadhar"
               value={formData.aadhar}
               onChange={handleChange}
-              
+
             />
           </div>
 
@@ -969,7 +995,7 @@ const handleSubmit = async (event) => {
               name="panCard"
               value={formData.panCard}
               onChange={handleChange}
-              
+
             />
           </div>
 
@@ -981,7 +1007,7 @@ const handleSubmit = async (event) => {
               name="education"
               value={formData.education}
               onChange={handleChange}
-              
+
             />
           </div>
 
@@ -993,7 +1019,7 @@ const handleSubmit = async (event) => {
               name="profession"
               value={formData.profession}
               onChange={handleChange}
-              
+
             />
           </div>
 
@@ -1005,7 +1031,7 @@ const handleSubmit = async (event) => {
               name="mobileNumber"
               value={formData.mobileNumber}
               onChange={handleChange}
-              
+
             />
           </div>
 
@@ -1017,7 +1043,7 @@ const handleSubmit = async (event) => {
               name="alternateContact"
               value={formData.alternateContact}
               onChange={handleChange}
-              
+
             />
           </div>
 
@@ -1030,134 +1056,6 @@ const handleSubmit = async (event) => {
               value={formData.email}
               onChange={handleChange}
             />
-          </div>
-
-          {/* Four Wheelers */}
-          <div className="form-group">
-            <label>4-Wheelers</label>
-            {formData.fourWheelers?.map((vehicle, index) => (
-              <div key={index} className="vehicle-details">
-                <h4 style={{ fontWeight: "normal", color: "#555" }}>
-                  Vehicle {index + 1}
-                </h4>
-                <input
-                  type="text"
-                  name={`vehicleRegistration${index}`}
-                  placeholder="Registration Number"
-                  value={vehicle.registration}
-                  onChange={(e) =>
-                    handleFourWheelerChange(e, index, "registration")
-                  }
-                  
-                />
-                <input
-                  type="text"
-                  name={`vehicleParking${index}`}
-                  placeholder="Parking Slot Number"
-                  value={vehicle.parkingSlot}
-                  onChange={(e) =>
-                    handleFourWheelerChange(e, index, "parkingSlot")
-                  }
-                  
-                />
-                <input
-                  type="text"
-                  name={`vehicleMake${index}`}
-                  placeholder="Make"
-                  value={vehicle.make}
-                  onChange={(e) => handleFourWheelerChange(e, index, "make")}
-                  
-                />
-                <input
-                  type="text"
-                  name={`vehicleModel${index}`}
-                  placeholder="Model"
-                  value={vehicle.model}
-                  onChange={(e) => handleFourWheelerChange(e, index, "model")}
-                  
-                />
-                <select
-                  name={`vehicleType${index}`}
-                  value={vehicle.type}
-                  onChange={(e) => handleFourWheelerChange(e, index, "type")}
-                  
-                >
-                  <option value="" disabled>
-                    Select Type
-                  </option>
-                  <option value="ICE">ICE</option>
-                  <option value="EV">EV</option>
-                </select>
-                <button className="delete-btn" onClick={() => deleteFourWheeler(index)}>Delete</button>
-              </div>
-            ))}
-            <button type="button" onClick={addFourWheeler}>
-              + Add 4-Wheeler
-            </button>
-          </div>
-
-          {/* Two Wheelers */}
-          <div className="form-group">
-            <label>2-Wheelers</label>
-            {formData.twoWheelers?.map((vehicle, index) => (
-              <div key={index} className="vehicle-details">
-                <h4 style={{ fontWeight: "normal", color: "#555" }}>
-                  Vehicle {index + 1}
-                </h4>
-                <input
-                  type="text"
-                  name={`vehicleRegistration${index}`}
-                  placeholder="Registration Number"
-                  value={vehicle.registration}
-                  onChange={(e) =>
-                    handleTwoWheelerChange(e, index, "registration")
-                  }
-                  
-                />
-                <input
-                  type="text"
-                  name={`vehicleParking${index}`}
-                  placeholder="Parking Slot Number"
-                  value={vehicle.parkingSlot}
-                  onChange={(e) =>
-                    handleTwoWheelerChange(e, index, "parkingSlot")
-                  }
-                  
-                />
-                <input
-                  type="text"
-                  name={`vehicleMake${index}`}
-                  placeholder="Make"
-                  value={vehicle.make}
-                  onChange={(e) => handleTwoWheelerChange(e, index, "make")}
-                  
-                />
-                <input
-                  type="text"
-                  name={`vehicleModel${index}`}
-                  placeholder="Model"
-                  value={vehicle.model}
-                  onChange={(e) => handleTwoWheelerChange(e, index, "model")}
-                  
-                />
-                <select
-                  name={`vehicleType${index}`}
-                  value={vehicle.type}
-                  onChange={(e) => handleTwoWheelerChange(e, index, "type")}
-                  
-                >
-                  <option value="" disabled>
-                    Select Type
-                  </option>
-                  <option value="ICE">ICE</option>
-                  <option value="EV">EV</option>
-                </select>
-                <button className="delete-btn" onClick={() => deleteTwoWheeler(index)}>Delete</button>
-              </div>
-            ))}
-            <button type="button" onClick={addTwoWheeler}>
-              + Add 2-Wheeler
-            </button>
           </div>
 
           <div className="form-group">
@@ -1203,83 +1101,280 @@ const handleSubmit = async (event) => {
 
           {/* Residential Address (if not living in society) */}
           {formData.rented === "yes" && (
-          <div className="form-group">
-            <label htmlFor="residential-address">Residential Address<span className="required-asterisk">*</span></label>
-            <input
-              type="text"
-              id="residential-address"
-              name="residentialAddress"
-              value={formData.residentialAddress}
-              onChange={handleChange}
-              placeholder="Enter residential address"
-            />
-          </div>
-        )}
+            <div className="form-group">
+              <label htmlFor="residential-address">Residential Address<span className="required-asterisk">*</span></label>
+              <input
+                type="text"
+                id="residential-address"
+                name="residentialAddress"
+                value={formData.residentialAddress}
+                onChange={handleChange}
+                placeholder="Enter residential address"
+              />
+            </div>
+          )}
 
           {/* Details of Tenants */}
           {formData.rented === "yes" && (
+            <div className="form-group">
+              <label>Tenant Details<span className="required-asterisk">*</span></label>
+              {formData.tenants?.map((tenant, index) => (
+                <div key={index} className="tenant-info">
+                  <h4 style={{ fontWeight: "normal", color: "#555" }}>
+                    Tenant {index + 1} Details
+                  </h4>
+                  <input
+                    type="text"
+                    id={`tenant-name-${index}`}
+                    name="name"
+                    value={tenant.name}
+                    onChange={(e) => handleTenantChange(e, index)}
+                    placeholder="Enter name"
+
+                  />
+
+                  <DatePicker
+                    selected={tenant.dob ? new Date(tenant.dob) : null}
+                    onChange={(date) => handleTenantChange({ target: { value: date } }, index, "dob")}
+                    placeholderText="Date of Birth"
+                    dateFormat="dd/MM/yyyy"
+                    showPopperArrow={false}
+                    className="date-picker"
+                    wrapperClassName="date-picker-wrapper"
+                  />
+
+                  <select
+                    id={`tenant-gender-${index}`}
+                    name="gender"
+                    value={tenant.gender}
+                    onChange={(e) => handleTenantChange(e, index)}
+
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+
+                  <input
+                    type="text"
+                    id={`tenant-mobile-${index}`}
+                    name="mobileNo"
+                    value={tenant.mobileNo}
+                    onChange={(e) => handleTenantChange(e, index)}
+                    placeholder="Enter mobile number"
+
+                  />
+                  <DatePicker
+                    selected={tenant.agreementDate ? new Date(tenant.agreementDate) : null}
+                    onChange={(date) => handleTenantChange({ target: { value: date } }, index, "agreementDate")}
+                    placeholderText="Date of Agreement"
+                    dateFormat="dd/MM/yyyy"
+                    showPopperArrow={false}
+                    className="date-picker"
+                    wrapperClassName="date-picker-wrapper"
+                  />
+                  <button className="delete-btn" onClick={() => deleteTenant(index)}>Delete</button>
+                </div>
+              ))}
+              <button type="button" onClick={addTenant}>
+                + Add Tenant
+              </button>
+            </div>
+          )}
+
+          {/* Four Wheelers */}
           <div className="form-group">
-            <label>Tenant Details<span className="required-asterisk">*</span></label>
-            {formData.tenants?.map((tenant, index) => (
-              <div key={index} className="tenant-info">
+            <label>4-Wheelers</label>
+            {formData.fourWheelers?.map((vehicle, index) => (
+              <div key={index} className="vehicle-details">
                 <h4 style={{ fontWeight: "normal", color: "#555" }}>
-                  Tenant {index + 1} Details
+                  Vehicle {index + 1}
                 </h4>
+                <div className="form-group">
+                  <label>Vehicle Owned By:</label>
+                  <div className="membership-options">
+                    <div>
+                      <input
+                        id="fourwheelerOwner"
+                        type="radio"
+                        name={`fourwheelerOwnership${index}`}
+                        value="fourwheelerOwner"
+                        checked={vehicle.ownership === "fourwheelerOwner"}
+                        onChange={(e) =>
+                          handleFourWheelerChange(e, index, "ownership")
+                        }
+                      />
+
+                      <label>Owner</label>
+                    </div>
+                    <div>
+                      <input
+                        id="fourwheelerTenant"
+                        type="radio"
+                        name={`fourwheelerOwnership${index}`}
+                        value="fourwheelerTenant"
+                        checked={vehicle.ownership === "fourwheelerTenant"}
+                        onChange={(e) =>
+                          handleFourWheelerChange(e, index, "ownership")
+                        }
+                      />
+                      <label>Tenant</label>
+                    </div>
+                  </div>
+                </div>
+
                 <input
                   type="text"
-                  id={`tenant-name-${index}`}
-                  name="name"
-                  value={tenant.name}
-                  onChange={(e) => handleTenantChange(e, index)}
-                  placeholder="Enter name"
-                  
+                  name={`vehicleRegistration${index}`}
+                  placeholder="Registration Number"
+                  value={vehicle.registration}
+                  onChange={(e) =>
+                    handleFourWheelerChange(e, index, "registration")
+                  }
+
                 />
                 <input
-                  type="date"
-                  id={`tenant-dob-${index}`}
-                  name="dob"
-                  value={tenant.dob}
-                  onChange={(e) => handleTenantChange(e, index)}
-                />
+                  type="text"
+                  name={`vehicleParking${index}`}
+                  placeholder="Parking Slot Number"
+                  value={vehicle.parkingSlot}
+                  onChange={(e) =>
+                    handleFourWheelerChange(e, index, "parkingSlot")
+                  }
 
+                />
+                <input
+                  type="text"
+                  name={`vehicleMake${index}`}
+                  placeholder="Make"
+                  value={vehicle.make}
+                  onChange={(e) => handleFourWheelerChange(e, index, "make")}
+
+                />
+                <input
+                  type="text"
+                  name={`vehicleModel${index}`}
+                  placeholder="Model"
+                  value={vehicle.model}
+                  onChange={(e) => handleFourWheelerChange(e, index, "model")}
+
+                />
                 <select
-                  id={`tenant-gender-${index}`}
-                  name="gender"
-                  value={tenant.gender}
-                  onChange={(e) => handleTenantChange(e, index)}
-                  
-                >
-                  <option value="">Select Gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
+                  name={`vehicleType${index}`}
+                  value={vehicle.type}
+                  onChange={(e) => handleFourWheelerChange(e, index, "type")}
 
-                <input
-                  type="text"
-                  id={`tenant-mobile-${index}`}
-                  name="mobileNo"
-                  value={tenant.mobileNo}
-                  onChange={(e) => handleTenantChange(e, index)}
-                  placeholder="Enter mobile number"
-                  
-                />
-                <input
-                  type="date"
-                  placeholder="Date of agreement"
-                  id={`tenant-agreementDate-${index}`}
-                  name="agreementDate"
-                  value={tenant.agreementDate}
-                  onChange={(e) => handleTenantChange(e, index)}
-                />
-                <button className="delete-btn" onClick={() => deleteTenant(index)}>Delete</button>
+                >
+                  <option value="" disabled>
+                    Select Type
+                  </option>
+                  <option value="ICE">ICE</option>
+                  <option value="EV">EV</option>
+                </select>
+                <button className="delete-btn" onClick={() => deleteFourWheeler(index)}>Delete</button>
               </div>
             ))}
-            <button type="button" onClick={addTenant}>
-              + Add Tenant
+            <button type="button" onClick={addFourWheeler}>
+              + Add 4-Wheeler
             </button>
           </div>
-          )}
+
+          {/* Two Wheelers */}
+          <div className="form-group">
+            <label>2-Wheelers</label>
+            {formData.twoWheelers?.map((vehicle, index) => (
+              <div key={index} className="vehicle-details">
+                <h4 style={{ fontWeight: "normal", color: "#555" }}>
+                  Vehicle {index + 1}
+                </h4>
+
+                <div className="form-group">
+                  <label>Vehicle Owned By:</label>
+                  <div className="membership-options">
+                    <div>
+                      <input
+                        id="twowheelerOwner"
+                        type="radio"
+                        name={`twowheelerOwnership${index}`}
+                        value="twowheelerOwner"
+                        checked={vehicle.ownership === "twowheelerOwner"}
+                        onChange={(e) =>
+                          handleTwoWheelerChange(e, index, "ownership")
+                        }
+                      />
+                      <label>Owner</label>
+                    </div>
+                    <div>
+                      <input
+                        id="twowheelerTenant"
+                        type="radio"
+                        name={`twowheelerOwnership${index}`}
+                        value="twowheelerTenant"
+                        checked={vehicle.ownership === "twowheelerTenant"}
+                        onChange={(e) =>
+                          handleTwoWheelerChange(e, index, "ownership")
+                        }
+                      />
+                      <label>Tenant</label>
+                    </div>
+                  </div>
+                </div>
+                <input
+                  type="text"
+                  name={`vehicleRegistration${index}`}
+                  placeholder="Registration Number"
+                  value={vehicle.registration}
+                  onChange={(e) =>
+                    handleTwoWheelerChange(e, index, "registration")
+                  }
+
+                />
+                <input
+                  type="text"
+                  name={`vehicleParking${index}`}
+                  placeholder="Parking Slot Number"
+                  value={vehicle.parkingSlot}
+                  onChange={(e) =>
+                    handleTwoWheelerChange(e, index, "parkingSlot")
+                  }
+
+                />
+                <input
+                  type="text"
+                  name={`vehicleMake${index}`}
+                  placeholder="Make"
+                  value={vehicle.make}
+                  onChange={(e) => handleTwoWheelerChange(e, index, "make")}
+
+                />
+                <input
+                  type="text"
+                  name={`vehicleModel${index}`}
+                  placeholder="Model"
+                  value={vehicle.model}
+                  onChange={(e) => handleTwoWheelerChange(e, index, "model")}
+
+                />
+                <select
+                  name={`vehicleType${index}`}
+                  value={vehicle.type}
+                  onChange={(e) => handleTwoWheelerChange(e, index, "type")}
+
+                >
+                  <option value="" disabled>
+                    Select Type
+                  </option>
+                  <option value="ICE">ICE</option>
+                  <option value="EV">EV</option>
+                </select>
+                <button className="delete-btn" onClick={() => deleteTwoWheeler(index)}>Delete</button>
+              </div>
+            ))}
+            <button type="button" onClick={addTwoWheeler}>
+              + Add 2-Wheeler
+            </button>
+          </div>
 
           {/* Declaration Checkbox */}
           <div className="form-group-checkbox">
@@ -1297,13 +1392,18 @@ const handleSubmit = async (event) => {
 
           {/* Date */}
           <div className="form-group">
-            <label htmlFor="date">Date<span className="required-asterisk">*</span></label>
-            <input
-              type="date"
-              id="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
+            <label htmlFor="date">
+              Date <span className="required-asterisk">*</span>
+            </label>
+            <DatePicker
+              selected={formData.date ? new Date(formData.date) : null}
+              onChange={(date) =>
+                handleChange({ target: { name: "date", value: date.toISOString().split("T")[0] } })
+              }
+              dateFormat="dd/MM/yyyy"
+              placeholderText="Select Date"
+              className="date-picker"
+              wrapperClassName="date-picker-wrapper"
             />
           </div>
 
@@ -1314,7 +1414,7 @@ const handleSubmit = async (event) => {
               name="photo"
               accept="image/*"
               onChange={handleFileChange}
-              
+
             />
             {formData.photo && (
               <img
@@ -1333,7 +1433,7 @@ const handleSubmit = async (event) => {
               name="signature"
               accept="image/*"
               onChange={handleFileChange}
-              
+
             />
             {formData.signature && (
               <img
@@ -1360,229 +1460,239 @@ const handleSubmit = async (event) => {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
 
             <div className="preview-content">
-            {formData.photo && (
-          <div className="photo">
-            <img src={URL.createObjectURL(formData.photo)} alt="Uploaded preview" />
-          </div>
-        )}
+              {formData.photo && (
+                <div className="photo">
+                  <img src={URL.createObjectURL(formData.photo)} alt="Uploaded preview" />
+                </div>
+              )}
               {/* Membership Details */}
               <div className="preview-section">
-              <div className="text-center mb-3">
-          <img 
-            src={logo}
-            alt="Society Logo" 
-            className="img-fluid" 
-            style={{ maxWidth: "100%", height: "auto" }}
-          />
-        </div>
+                <div className="text-center mb-3">
+                  <img
+                    src={logo}
+                    alt="Society Logo"
+                    className="img-fluid"
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  />
+                </div>
                 <center><h3>Society Membership Form</h3></center>
-                
-          {formData.shareCertificateNo && <p><strong>Share Certificate No:</strong> {formData.shareCertificateNo}</p>}
-          {(formData.firstName || formData.middleName || formData.lastName) && (
-            <p><strong>Name:</strong> {formData.firstName} {formData.middleName} {formData.lastName}</p>
-          )}
-          {<p><strong>Flat Details:</strong></p>}
-          {formData.wingName && <p><strong>Wing Name:</strong> {formData.wingName}</p>}
-          {formData.flatNo && <p><strong>Flat No:</strong> {formData.flatNo}</p>}
-          {formData.flatSize && <p><strong>Flat Size:</strong> {formData.flatSize}</p>}
-          {formData.flatArea && <p><strong>Area of Flat:</strong> {formData.flatArea}</p>}
-          {formData.dob && <p><strong>Date of Birth:</strong> {formData.dob}</p>}
-          {formData.gender && <p><strong>Gender:</strong> {formData.gender}</p>}
-          {formData.maritalStatus && <p><strong>Marital Status:</strong> {formData.maritalStatus}</p>}
-          {formData.parentOrSpouseName && (
-            <p><strong>Father/Mother/Spouse Name:</strong> {formData.parentOrSpouseName}</p>
-          )}
+
+                {formData.shareCertificateNo && <p><strong>Certificate No:</strong> {formData.shareCertificateNo}</p>}
+                {(formData.firstName || formData.middleName || formData.lastName) && (
+                  <p><strong>Name:</strong> {formData.firstName} {formData.middleName} {formData.lastName}</p>
+                )}
+                {/* {<p><strong>Flat Details:</strong></p>} */}
+                {formData.wingName && <p><strong>Wing Name:</strong> {formData.wingName}</p>}
+                {formData.flatNo && <p><strong>Flat No:</strong> {formData.flatNo}</p>}
+                {formData.flatSize && <p><strong>Flat Size:</strong> {formData.flatSize}</p>}
+                {formData.flatArea && <p><strong>Area of Flat:</strong> {formData.flatArea}</p>}
+                {formData.dob && (
+                  <p><strong>Date of Birth:</strong> {new Date(formData.dob).toLocaleDateString()}</p>
+                )}
+
+                {formData.gender && <p><strong>Gender:</strong> {formData.gender}</p>}
+                {formData.maritalStatus && <p><strong>Marital Status:</strong> {formData.maritalStatus}</p>}
+                {formData.parentOrSpouseName && (
+                  <p><strong>Father/Mother/Spouse Name:</strong> {formData.parentOrSpouseName}</p>
+                )}
               </div>
 
               {/* Guardian, Religion, Nationality, Aadhar, PAN, and Other Fields */}
               <div className="preview-section">
-              {formData.guardianName && (
-            <p><strong>Name of Guardian (In case of Minor):</strong> {formData.guardianName}</p>
-          )}
-          {formData.religion && <p><strong>Religion:</strong> {formData.religion}</p>}
-          {formData.nationality && <p><strong>Nationality:</strong> {formData.nationality}</p>}
-          {formData.nationality === "others" && formData.otherCountry && (
-            <p><strong>Other Country:</strong> {formData.otherCountry}</p>
-          )}
-          {formData.aadhar && <p><strong>Aadhar No:</strong> {formData.aadhar}</p>}
-          {formData.panCard && <p><strong>PAN Card No:</strong> {formData.panCard}</p>}
-          {formData.education && <p><strong>Educational Qualifications:</strong> {formData.education}</p>}
-          {formData.profession && <p><strong>Profession:</strong> {formData.profession}</p>}
-          {formData.mobileNumber && <p><strong>Mobile Number:</strong> {formData.mobileNumber}</p>}
-          {formData.alternateContact && (
-            <p><strong>Alternate Contact No:</strong> {formData.alternateContact}</p>
-          )}
-          {formData.email && <p><strong>Email ID:</strong> {formData.email}</p>}
-          {formData.petDetails && <p><strong>Pet Details:</strong> {formData.petDetails}</p>}
-          {formData.rented && <p><strong>Whether Rented:</strong> {formData.rented}</p>}
-          {formData.residentialAddress && (
-            <p><strong>Residential Address:</strong> {formData.residentialAddress}</p>
-          )}
-          
-          {formData.date && <p><strong>Date:</strong> {formData.date}</p>}
+                {formData.guardianName && (
+                  <p><strong>Name of Guardian (In case of Minor):</strong> {formData.guardianName}</p>
+                )}
+                {formData.religion && <p><strong>Religion:</strong> {formData.religion}</p>}
+                {formData.nationality && <p><strong>Nationality:</strong> {formData.nationality}</p>}
+                {formData.nationality === "others" && formData.otherCountry && (
+                  <p><strong>Other Country:</strong> {formData.otherCountry}</p>
+                )}
+                {formData.aadhar && <p><strong>Aadhar No:</strong> {formData.aadhar}</p>}
+                {formData.panCard && <p><strong>PAN Card No:</strong> {formData.panCard}</p>}
+                {formData.education && <p><strong>Educational Qualifications:</strong> {formData.education}</p>}
+                {formData.profession && <p><strong>Profession:</strong> {formData.profession}</p>}
+                {formData.mobileNumber && <p><strong>Mobile Number:</strong> {formData.mobileNumber}</p>}
+                {formData.alternateContact && (
+                  <p><strong>Alternate Contact No:</strong> {formData.alternateContact}</p>
+                )}
+                {formData.email && <p><strong>Email ID:</strong> {formData.email}</p>}
+                {formData.petDetails && <p><strong>Pet Details:</strong> {formData.petDetails}</p>}
+                {formData.rented && <p><strong>Whether Rented:</strong> {formData.rented}</p>}
+                {formData.residentialAddress && (
+                  <p><strong>Residential Address:</strong> {formData.residentialAddress}</p>
+                )}
+
+                {formData.date && (
+                  <p><strong>Date:</strong> {new Date(formData.date).toLocaleDateString()}</p>
+                )}
+
               </div>
               {formData.jointMembers?.length > 0 && (
-              <div className="preview-section">
-                <h4>Joint Members</h4>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Date of Birth</th>
-                      <th>Gender</th>
-                      <th>Marital Status</th>
-                      <th>Mobile Number</th>
-                      <th>Email</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {formData.jointMembers.map((member, index) => (
-                      <tr key={index}>
-                        <td>{member.firstName} {member.middleName} {member.lastName}</td>
-                        <td>{member.dob}</td>
-                        <td>{member.gender}</td>
-                        <td>{member.maritalStatus}</td>
-                        <td>{member.mobileNumber}</td>
-                        <td>{member.email}</td>
+                <div className="preview-section">
+                  <h4>Joint Members</h4>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Date of Birth</th>
+                        <th>Gender</th>
+                        <th>Marital Status</th>
+                        <th>Mobile Number</th>
+                        <th>Email</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {formData.jointMembers.map((member, index) => (
+                        <tr key={index}>
+                          <td>{member.firstName} {member.middleName} {member.lastName}</td>
+                          <td>{new Date(member.dob).toLocaleDateString()}</td>
+                          <td>{member.gender}</td>
+                          <td>{member.maritalStatus}</td>
+                          <td>{member.mobileNumber}</td>
+                          <td>{member.email}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
               {/* Family Members Table */}
               {formData.familyMembers?.length > 0 && (
-              <div className="preview-section">
-                <h4>Family Members</h4>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Date of Birth</th>
-                      <th>Relation</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {formData.familyMembers.map((member, index) => (
-                      <tr key={index}>
-                        <td>{member.name}</td>
-                        <td>{member.dob}</td>
-                        <td>{member.relation}</td>
+                <div className="preview-section">
+                  <h4>Family Members</h4>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Date of Birth</th>
+                        <th>Relation</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {formData.familyMembers.map((member, index) => (
+                        <tr key={index}>
+                          <td>{member.name}</td>
+                          <td>{new Date(member.dob).toLocaleDateString()}</td>
+                          <td>{member.relation}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
 
               {/* Vehicles Table */}
-              
+
               <div className="preview-section">
-                
+
                 {formData.fourWheelers?.length > 0 && (<h4>4-Wheelers</h4>)}
                 {formData.fourWheelers?.length > 0 && (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Registration No.</th>
-                      <th>Parking Slot</th>
-                      <th>Make</th>
-                      <th>Model</th>
-                      <th>Type</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {formData.fourWheelers.map((vehicle, index) => (
-                      <tr key={index}>
-                        <td>{vehicle.registration}</td>
-                        <td>{vehicle.parkingSlot}</td>
-                        <td>{vehicle.make}</td>
-                        <td>{vehicle.model}</td>
-                        <td>{vehicle.type}</td>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Owned By</th>
+                        <th>Registration No.</th>
+                        <th>Parking Slot</th>
+                        <th>Make</th>
+                        <th>Model</th>
+                        <th>Type</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                    </thead>
+                    <tbody>
+                      {formData.fourWheelers.map((vehicle, index) => (
+                        <tr key={index}>
+                          <td>{vehicle.ownership}</td>
+                          <td>{vehicle.registration}</td>
+                          <td>{vehicle.parkingSlot}</td>
+                          <td>{vehicle.make}</td>
+                          <td>{vehicle.model}</td>
+                          <td>{vehicle.type}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
 
-{formData.twoWheelers?.length > 0 && (<h4>2-Wheelers</h4>)}
+                {formData.twoWheelers?.length > 0 && (<h4>2-Wheelers</h4>)}
                 {formData.twoWheelers?.length > 0 && (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Registration No.</th>
-                      <th>Parking Slot</th>
-                      <th>Make</th>
-                      <th>Model</th>
-                      <th>Type</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {formData.twoWheelers.map((vehicle, index) => (
-                      <tr key={index}>
-                        <td>{vehicle.registration}</td>
-                        <td>{vehicle.parkingSlot}</td>
-                        <td>{vehicle.make}</td>
-                        <td>{vehicle.model}</td>
-                        <td>{vehicle.type}</td>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Owned By</th>
+                        <th>Registration No.</th>
+                        <th>Parking Slot</th>
+                        <th>Make</th>
+                        <th>Model</th>
+                        <th>Type</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {formData.twoWheelers.map((vehicle, index) => (
+                        <tr key={index}>
+                          <td>{vehicle.ownership}</td>
+                          <td>{vehicle.registration}</td>
+                          <td>{vehicle.parkingSlot}</td>
+                          <td>{vehicle.make}</td>
+                          <td>{vehicle.model}</td>
+                          <td>{vehicle.type}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 )}
               </div>
 
 
               <div className="preview-section">
-              
-              {formData.tenants?.length > 0 && (<h4>Details of Tenants</h4>)}
+
+                {formData.tenants?.length > 0 && (<h4>Details of Tenants</h4>)}
                 {formData.tenants?.length > 0 && (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Date of Birth</th>
-                      <th>Gender</th>
-                      <th>Mobile Number</th>
-                      <th>Agreement Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {formData.tenants.map((tenant, index) => (
-                      <tr key={index}>
-                        <td>{tenant.name}</td>
-                        <td>{tenant.dob}</td>
-                        <td>{tenant.gender}</td>
-                        <td>{tenant.mobileNo}</td>
-                        <td>{tenant.agreementDate}</td>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Date of Birth</th>
+                        <th>Gender</th>
+                        <th>Mobile Number</th>
+                        <th>Agreement Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                    </thead>
+                    <tbody>
+                      {formData.tenants.map((tenant, index) => (
+                        <tr key={index}>
+                          <td>{tenant.name}</td>
+                          <td>{new Date(tenant.dob).toLocaleDateString()}</td>
+                          <td>{tenant.gender}</td>
+                          <td>{tenant.mobileNo}</td>
+                          <td>{new Date(tenant.agreementDate).toLocaleDateString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
 
               {formData.declaration !== undefined && (
-            <div className="preview-section">
-            <h4>Declaration</h4>
-            <div className="declaration">
-              <input
-                type="checkbox"
-                checked={formData.declaration}
-                readOnly
-                style={{
-                  marginRight: "10px",
-                  transform: "scale(1.5)",
-                  pointerEvents: "none",
-                }}
-              />
-              <label>
-                I hereby certify that the information furnished above is correct
-                and true to my knowledge.
-              </label>
-            </div>
-          </div>
-          )}
+                <div className="preview-section">
+                  <h4>Declaration</h4>
+                  <div className="declaration">
+                    <input
+                      type="checkbox"
+                      checked={formData.declaration}
+                      readOnly
+                      style={{
+                        marginRight: "10px",
+                        transform: "scale(1.5)",
+                        pointerEvents: "none",
+                      }}
+                    />
+                    <label>
+                      I hereby certify that the information furnished above is correct
+                      and true to my knowledge.
+                    </label>
+                  </div>
+                </div>
+              )}
 
               {/* Photograph and Signature */}
               {/* <div className="preview-section">
@@ -1601,12 +1711,21 @@ const handleSubmit = async (event) => {
                 <button onClick={handleDownload} className="download-button">
                   Download as PDF
                 </button>
-                <button onClick={handleSubmit} className="download-button">
-                  Submit
-                </button>
+                <div>
+      {loading ? (
+        <div className="loading-container">
+          <ClipLoader color="#007BFF" size={50} /> {/* Add a spinner */}
+          {/* <p>Submitting your form, please wait...</p> */}
+        </div>
+      ) : (
+        <button onClick={handleSubmit} className="download-button">
+          Submit
+        </button>
+      )}
+    </div>
                 <button onClick={closeModal} className="download-button">
-              Edit/Close
-            </button>
+                  Edit/Close
+                </button>
               </div>
             </div>
           </div>

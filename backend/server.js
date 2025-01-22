@@ -11,7 +11,8 @@ const PORT = process.env.PORT || 5001;
 
 // MongoDB connection
 mongoose.connect(
-  "mongodb+srv://shahjeet64:ZNIsezGUlnm1o4vO@cluster0.zarb9en.mongodb.net/formData?retryWrites=true&w=majority",
+  // "mongodb+srv://shahjeet64:ZNIsezGUlnm1o4vO@cluster0.zarb9en.mongodb.net/formData?retryWrites=true&w=majority",
+  "mongodb+srv://vina:tR5wYfwkAFZ4IjJF@cluster0.5kwfa.mongodb.net/formData?retryWrites=true&w=majority&appName=Cluster0",
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -41,7 +42,18 @@ const upload = multer({ storage: storage });
 
 // MongoDB Schema for form data
 const formDataSchema = new mongoose.Schema({
-  membershipType: String,
+  jointMembers: [
+    {
+      firstName: String,
+      middleName: String,
+      lastName: String,
+      dob: Date,
+      gender: String,
+      maritalStatus: String,
+      mobileNumber: String,
+      email: String,
+    },
+  ],
   shareCertificateNo: String,
   firstName: String,
   middleName: String,
@@ -74,6 +86,7 @@ const formDataSchema = new mongoose.Schema({
   email: String,
   fourWheelers: [
     {
+      ownerShip: String,
       registrationNo: String,
       parkingSlot: String,
       make: String,
@@ -83,6 +96,7 @@ const formDataSchema = new mongoose.Schema({
   ],
   twoWheelers: [
     {
+      ownerShip: String,
       registrationNo: String,
       parkingSlot: String,
       make: String,
@@ -96,7 +110,7 @@ const formDataSchema = new mongoose.Schema({
       dob: Date,
       gender: String,
       mobileNo: String,
-      aggrementDate: Date,
+      agreementDate: Date,
     },
   ],
   petDetails: String,
@@ -118,7 +132,7 @@ app.post(
   async (req, res) => {
     const {
       email,
-      membershipType,
+      jointMembers,
       shareCertificateNo,
       firstName,
       middleName,
@@ -167,7 +181,7 @@ app.post(
       const signature = req.files["signature"] ? req.files["signature"][0].path : null;
 
       const formData = new FormData({
-        membershipType,
+        jointMembers: JSON.parse(jointMembers),
         shareCertificateNo,
         firstName,
         middleName,

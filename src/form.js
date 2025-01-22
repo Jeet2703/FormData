@@ -166,7 +166,7 @@ const UserForm = () => {
       ...prevData,
       fourWheelers: [
         ...(prevData.fourWheelers || []),
-        { owndership: "", registration: "", parkingSlot: "", make: "", model: "", type: "" },
+        { registration: "", parkingSlot: "", make: "", model: "", type: "" },
       ],
     }));
   };
@@ -190,7 +190,7 @@ const UserForm = () => {
       ...prevData,
       twoWheelers: [
         ...(prevData.twoWheelers || []),
-        { owndership: "", registration: "", parkingSlot: "", make: "", model: "", type: "" },
+        { registration: "", parkingSlot: "", make: "", model: "", type: "" },
       ],
     }));
   };

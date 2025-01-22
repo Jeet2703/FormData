@@ -14,6 +14,7 @@ const UserForm = () => {
     lastName: "",
     wingName: "",
     flatNo: "",
+    flatSize: "",
     flatArea: "",
     dob: "",
     gender: "",
@@ -43,6 +44,9 @@ const UserForm = () => {
     date: "",
   });
 
+  const [flatAreaOptions, setFlatAreaOptions] = useState([]);
+  const [isFlatAreaText, setIsFlatAreaText] = useState(false);
+
   const [preview, setPreview] = useState(false); // This controls the visibility of the preview modal
 
   const calculateAge = (dob) => {
@@ -71,6 +75,26 @@ const UserForm = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    if (name === 'flatSize') {
+      if (value === '3 bhk') {
+        setFlatAreaOptions([
+          '901 sqft',
+          '720 sqft',
+          '897 sqft',
+          '910 sqft',
+          '899 sqft',
+          '1011 sqft',
+        ]);
+        setIsFlatAreaText(false);
+      } else if (value === '2 bhk') {
+        setFlatAreaOptions(['776 sqft']);
+        setIsFlatAreaText(false);
+      } else if (value === '1 bhk') {
+        setFlatAreaOptions([]);
+        setIsFlatAreaText(true);
+      }
+    }
 
     if (name === "dob") {
       const age = calculateAge(value);
@@ -197,6 +221,7 @@ const UserForm = () => {
       lastName,
       wingName,
       flatNo,
+      flatSize,
       flatArea,
       dob,
       gender,
@@ -260,6 +285,7 @@ const UserForm = () => {
       else if (!wingName) return 'Wing Name is mandatory.';
       else if (!flatNo) return 'Flat Number is mandatory.';
       else if (!flatArea) return 'Flat Area is mandatory.';
+      else if (!flatSize) return 'Flat Size is mandatory.';
     
       // Membership Detail
     
@@ -621,20 +647,49 @@ const handleSubmit = async (event) => {
 
           {/* Area of Flat */}
           <div className="form-group">
-            <label>Flat Area<span className="required-asterisk">*</span></label>
-            <select
-              name="flatArea"
-              value={formData.flatArea}
-              onChange={handleChange}
-              
-            >
-              <option value="">Select Flat Area</option>
-              <option value="125sqft">125 sqft</option>
-              <option value="125sqft">125 sqft</option>
-              <option value="125sqft">125 sqft</option>
-              <option value="125sqft">125 sqft</option>
-            </select>
-          </div>
+        <label>
+          Flat Size<span className="required-asterisk">*</span>
+        </label>
+        <select
+          name="flatSize"
+          value={formData.flatSize}
+          onChange={handleChange}
+        >
+          <option value="">Select Flat Size</option>
+          <option value="3 bhk">3 BHK</option>
+          <option value="2 bhk">2 BHK</option>
+          <option value="1 bhk">1 BHK</option>
+        </select>
+      </div>
+
+      {/* Flat Area */}
+      <div className="form-group">
+        <label>
+          Flat Area<span className="required-asterisk">*</span>
+        </label>
+        {isFlatAreaText ? (
+          <input
+            type="text"
+            name="flatArea"
+            value={formData.flatArea}
+            onChange={handleChange}
+            placeholder="Enter flat area (sq ft)"
+          />
+        ) : (
+          <select
+            name="flatArea"
+            value={formData.flatArea}
+            onChange={handleChange}
+          >
+            <option value="">Select Flat Area</option>
+            {flatAreaOptions.map((option, index) => (
+              <option key={index} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
 
           {/* Date of Birth */}
           <div className="form-group">
@@ -1220,6 +1275,7 @@ const handleSubmit = async (event) => {
           {<p><strong>Flat Details:</strong></p>}
           {formData.wingName && <p><strong>Wing Name:</strong> {formData.wingName}</p>}
           {formData.flatNo && <p><strong>Flat No:</strong> {formData.flatNo}</p>}
+          {formData.flatSize && <p><strong>Flat Size:</strong> {formData.flatSize}</p>}
           {formData.flatArea && <p><strong>Area of Flat:</strong> {formData.flatArea}</p>}
           {formData.dob && <p><strong>Date of Birth:</strong> {formData.dob}</p>}
           {formData.gender && <p><strong>Gender:</strong> {formData.gender}</p>}

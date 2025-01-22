@@ -209,25 +209,6 @@ const UserForm = () => {
     setFormData({ ...formData, twoWheelers: updatedTwoWheelers });
   };
 
-
-  // const handleTenantChange = (e, index, field) => {
-  //   const updatedTenants = [...formData.tenants];
-  //   updatedTenants[index][field] = e.target.value;
-  //   setFormData({ ...formData, tenants: updatedTenants });
-
-  // };
-
-  const handleTenantChange = (e, index, field) => {
-    const { name, value } = e.target;
-    const tenants = [...formData.tenants];
-    tenants[index][name] = value;
-    setFormData({ ...formData, tenants });
-
-    const updatedTenants = [...formData.tenants];
-    updatedTenants[index][field] = e.target.value;
-    setFormData({ ...formData, tenants: updatedTenants });
-  };
-
   const addTenant = () => {
     setFormData({
       ...formData,
@@ -245,6 +226,16 @@ const UserForm = () => {
     }));
   };
 
+  const handleTenantChange = (e, index, field) => {
+    const { name, value } = e.target;
+    const tenants = [...formData.tenants];
+    tenants[index][name] = value;
+    setFormData({ ...formData, tenants });
+
+    const updatedTenants = [...formData.tenants];
+    updatedTenants[index][field] = e.target.value;
+    setFormData({ ...formData, tenants: updatedTenants });
+  };
 
   const handleCheckboxChange = () => {
     setFormData({ ...formData, declaration: !formData.declaration });
@@ -539,7 +530,7 @@ const UserForm = () => {
       ) {
         // Ensure the values are parsed into objects/arrays before appending
         try {
-          formDataToSubmit.append(key, JSON.stringify(JSON.parse(formData[key])));
+          formDataToSubmit.append(key, JSON.stringify(formData[key]));
         } catch (e) {
           // If parsing fails (in case of invalid JSON), append the value as-is
           formDataToSubmit.append(key, formData[key]);
@@ -1206,7 +1197,7 @@ const UserForm = () => {
                         type="radio"
                         name={`fourwheelerOwnership${index}`}
                         value="fourwheelerOwner"
-                        checked={vehicle.ownership === "fourwheelerOwner"}
+                        checked={vehicle.ownership === "Owner"}
                         onChange={(e) =>
                           handleFourWheelerChange(e, index, "ownership")
                         }
@@ -1220,7 +1211,7 @@ const UserForm = () => {
                         type="radio"
                         name={`fourwheelerOwnership${index}`}
                         value="fourwheelerTenant"
-                        checked={vehicle.ownership === "fourwheelerTenant"}
+                        checked={vehicle.ownership === "Tenant"}
                         onChange={(e) =>
                           handleFourWheelerChange(e, index, "ownership")
                         }
@@ -1304,7 +1295,7 @@ const UserForm = () => {
                         type="radio"
                         name={`twowheelerOwnership${index}`}
                         value="twowheelerOwner"
-                        checked={vehicle.ownership === "twowheelerOwner"}
+                        checked={vehicle.ownership === "Owner"}
                         onChange={(e) =>
                           handleTwoWheelerChange(e, index, "ownership")
                         }
@@ -1317,7 +1308,7 @@ const UserForm = () => {
                         type="radio"
                         name={`twowheelerOwnership${index}`}
                         value="twowheelerTenant"
-                        checked={vehicle.ownership === "twowheelerTenant"}
+                        checked={vehicle.ownership === "Tenant"}
                         onChange={(e) =>
                           handleTwoWheelerChange(e, index, "ownership")
                         }
@@ -1334,7 +1325,6 @@ const UserForm = () => {
                   onChange={(e) =>
                     handleTwoWheelerChange(e, index, "registration")
                   }
-
                 />
                 <input
                   type="text"

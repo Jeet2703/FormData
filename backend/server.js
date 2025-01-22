@@ -169,19 +169,22 @@ app.post(
     console.log('Incoming formData:', req.body);
 
     try {
+      // Parse the JSON fields only if they are strings
+      const parsedJointMembers = jointMembers ? JSON.parse(jointMembers) : [];
+      const parsedFamilyMembers = familyMembers ? JSON.parse(familyMembers) : [];
+      const parsedTenants = tenants ? JSON.parse(tenants) : [];
+
       // Check if email already exists
       const existingForm = await FormData.findOne({ email });
       if (existingForm) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Email already used" });
+        return res.status(400).json({ success: false, message: "Email already used" });
       }
 
       const photo = req.files["photo"] ? req.files["photo"][0].path : null;
       const signature = req.files["signature"] ? req.files["signature"][0].path : null;
 
       const formData = new FormData({
-        jointMembers: JSON.parse(jointMembers),
+        jointMembers: parsedJointMembers,
         shareCertificateNo,
         firstName,
         middleName,
@@ -194,7 +197,7 @@ app.post(
         gender,
         maritalStatus,
         parentOrSpouseName,
-        familyMembers: JSON.parse(familyMembers),
+        familyMembers: parsedFamilyMembers,
         guardianName,
         religion,
         nationality,
@@ -208,7 +211,7 @@ app.post(
         email,
         fourWheelers,
         twoWheelers,
-        tenants: JSON.parse(tenants),
+        tenants: parsedTenants,
         petDetails,
         rented,
         residentialAddress,
@@ -222,7 +225,7 @@ app.post(
       res.status(200).json({ success: true, message: "Form submitted successfully" });
     } catch (error) {
       console.error("Error saving form data:", error);
-      res.status(500).json({ success: false, message: "Error saving data", error });
+      res.status(500).json({ success: false, message: "Error saving data", error: error.message });
     }
   }
 );

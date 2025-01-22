@@ -537,7 +537,13 @@ const UserForm = () => {
         key === "twoWheelers" ||
         key === "tenants"
       ) {
-        formDataToSubmit.append(key, JSON.stringify(formData[key]));
+        // Ensure the values are parsed into objects/arrays before appending
+        try {
+          formDataToSubmit.append(key, JSON.stringify(JSON.parse(formData[key])));
+        } catch (e) {
+          // If parsing fails (in case of invalid JSON), append the value as-is
+          formDataToSubmit.append(key, formData[key]);
+        }
       } else {
         formDataToSubmit.append(key, formData[key]);
       }

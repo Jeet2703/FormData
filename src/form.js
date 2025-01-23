@@ -523,6 +523,7 @@ const UserForm = () => {
     const formDataToSubmit = new FormData();
     Object.keys(formData).forEach((key) => {
       if (
+        key === "jointMembers" ||
         key === "familyMembers" ||
         key === "fourWheelers" ||
         key === "twoWheelers" ||

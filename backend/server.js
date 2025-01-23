@@ -28,6 +28,10 @@ mongoose.connection.on("connected", () => {
 app.use(bodyParser.json({ limit: "10mb" })); // Increased limit for large PDFs
 app.use(cors());
 
+app.get("/ping", (req, res) => {
+  res.send({ message: "pong" });
+});
+
 // Set up multer for file upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

@@ -317,7 +317,7 @@ const UserForm = () => {
       else if (!mobileNumber) return 'Mobile Number is mandatory.';
       else if (!/^\d{10}$/.test(mobileNumber)) return 'Mobile number must be exactly 10 digits.';
       // else if (!alternateContact) return 'Alternate Contact Number is mandatory.';
-      else if (!/^\d{10}$/.test(alternateContact)) return 'Alternate contact number must be exactly 10 digits.';
+      // else if (!/^\d{10}$/.test(alternateContact)) return 'Alternate contact number must be exactly 10 digits.';
       else if (!email) return 'Email is mandatory.';
       else if (!/^\S+@\S+\.\S+$/.test(email)) return 'Invalid email format.';
 

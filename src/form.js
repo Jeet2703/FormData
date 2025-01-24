@@ -316,7 +316,7 @@ const UserForm = () => {
       // Contact Information
       else if (!mobileNumber) return 'Mobile Number is mandatory.';
       else if (!/^\d{10}$/.test(mobileNumber)) return 'Mobile number must be exactly 10 digits.';
-      else if (!alternateContact) return 'Alternate Contact Number is mandatory.';
+      // else if (!alternateContact) return 'Alternate Contact Number is mandatory.';
       else if (!/^\d{10}$/.test(alternateContact)) return 'Alternate contact number must be exactly 10 digits.';
       else if (!email) return 'Email is mandatory.';
       else if (!/^\S+@\S+\.\S+$/.test(email)) return 'Invalid email format.';
@@ -606,10 +606,10 @@ const UserForm = () => {
         </div>
         <h2 className="form-title">Society Membership Form</h2>
         <form>
-
           {/* Share Certificate No */}
           <div className="form-group">
-            <label>Certificate No.</label>
+          <label style={{marginBottom: "15px"}}>Member Details:</label>
+            <label>Share Certificate No.</label>
             <input
               type="text"
               name="shareCertificateNo"
@@ -789,7 +789,7 @@ const UserForm = () => {
 
           {/* Membership Type */}
           <div className="form-group">
-            <label>Member Details<span className="required-asterisk">*</span></label>
+            <label>Joint Member Details</label>
             <div className="form-group">
 
               {formData.jointMembers?.map((member, index) => (
@@ -819,15 +819,19 @@ const UserForm = () => {
                     onChange={(e) => handleJointMemberChange(e, index, "lastName")}
                   />
 
-                  <DatePicker
-                    selected={member.dob ? new Date(member.dob) : null}
-                    onChange={(date) => handleJointMemberChange({ target: { value: date } }, index, "dob")}
-                    placeholderText="Date of Birth"
-                    dateFormat="dd/MM/yyyy"
-                    showPopperArrow={false}
-                    className="date-picker"
-                    wrapperClassName="date-picker-wrapper"
-                  />
+<DatePicker
+  selected={member.dob ? new Date(member.dob) : null}
+  onChange={(date) => handleJointMemberChange({ target: { value: date.toISOString().split("T")[0] } }, index, "dob")}
+  placeholderText="Date of Birth"
+  dateFormat="dd/MM/yyyy"
+  showPopperArrow={false}
+  className="date-picker"
+  wrapperClassName="date-picker-wrapper"
+  showMonthDropdown
+  showYearDropdown
+  dropdownMode="select" // This ensures dropdowns are used instead of a scroll
+/>
+
 
                   <select
                     name={`gender${index}`}
@@ -895,14 +899,18 @@ const UserForm = () => {
 
                 />
                 <DatePicker
-                  selected={member.dob ? new Date(member.dob) : null}
-                  onChange={(date) => handleFamilyMemberChange({ target: { value: date } }, index, "dob")}
-                  placeholderText="Date of Birth"
-                  dateFormat="dd/MM/yyyy"
-                  showPopperArrow={false}
-                  className="date-picker"
-                  wrapperClassName="date-picker-wrapper"
-                />
+  selected={member.dob ? new Date(member.dob) : null}
+  onChange={(date) => handleFamilyMemberChange({ target: { value: date.toISOString().split("T")[0] } }, index, "dob")}
+  placeholderText="Date of Birth"
+  dateFormat="dd/MM/yyyy"
+  showPopperArrow={false}
+  className="date-picker"
+  wrapperClassName="date-picker-wrapper"
+  showMonthDropdown
+  showYearDropdown
+  dropdownMode="select" // Ensures dropdown menus for month and year
+/>
+
                 <input
                   type="text"
                   name={`memberRelation${index}`}
@@ -1035,7 +1043,7 @@ const UserForm = () => {
 
           {/* Alternate Contact Number */}
           <div className="form-group">
-            <label>Alternate Contact Number(10 digits)<span className="required-asterisk">*</span></label>
+            <label>Alternate Contact Number(10 digits)</label>
             <input
               type="text"
               name="alternateContact"
@@ -1131,15 +1139,19 @@ const UserForm = () => {
 
                   />
 
-                  <DatePicker
-                    selected={tenant.dob ? new Date(tenant.dob) : null}
-                    onChange={(date) => handleTenantChange({ target: { value: date } }, index, "dob")}
-                    placeholderText="Date of Birth"
-                    dateFormat="dd/MM/yyyy"
-                    showPopperArrow={false}
-                    className="date-picker"
-                    wrapperClassName="date-picker-wrapper"
-                  />
+<DatePicker
+  selected={tenant.dob ? new Date(tenant.dob) : null}
+  onChange={(date) => handleTenantChange({ target: { value: date.toISOString().split("T")[0] } }, index, "dob")}
+  placeholderText="Date of Birth"
+  dateFormat="dd/MM/yyyy"
+  showPopperArrow={false}
+  className="date-picker"
+  wrapperClassName="date-picker-wrapper"
+  showMonthDropdown
+  showYearDropdown
+  dropdownMode="select" // Enables dropdowns for month and year selection
+/>
+
 
                   <select
                     id={`tenant-gender-${index}`}
@@ -1164,14 +1176,18 @@ const UserForm = () => {
 
                   />
                   <DatePicker
-                    selected={tenant.agreementDate ? new Date(tenant.agreementDate) : null}
-                    onChange={(date) => handleTenantChange({ target: { value: date } }, index, "agreementDate")}
-                    placeholderText="Date of Agreement"
-                    dateFormat="dd/MM/yyyy"
-                    showPopperArrow={false}
-                    className="date-picker"
-                    wrapperClassName="date-picker-wrapper"
-                  />
+  selected={tenant.agreementDate ? new Date(tenant.agreementDate) : null}
+  onChange={(date) => handleTenantChange({ target: { value: date.toISOString().split("T")[0] } }, index, "agreementDate")}
+  placeholderText="Date of Agreement"
+  dateFormat="dd/MM/yyyy"
+  showPopperArrow={false}
+  className="date-picker"
+  wrapperClassName="date-picker-wrapper"
+  showMonthDropdown
+  showYearDropdown
+  dropdownMode="select" // Enables dropdown menus for month and year selection
+/>
+
                   <button className="delete-btn" onClick={() => deleteTenant(index)}>Delete</button>
                 </div>
               ))}
@@ -1192,33 +1208,28 @@ const UserForm = () => {
                 <div className="form-group">
                   <label>Vehicle Owned By:</label>
                   <div className="membership-options">
-                    <div>
-                      <input
-                        id="fourwheelerOwner"
-                        type="radio"
-                        name={`fourwheelerOwnership${index}`}
-                        value="fourwheelerOwner"
-                        checked={vehicle.ownership === "Owner"}
-                        onChange={(e) =>
-                          handleFourWheelerChange(e, index, "ownership")
-                        }
-                      />
-
-                      <label>Owner</label>
-                    </div>
-                    <div>
-                      <input
-                        id="fourwheelerTenant"
-                        type="radio"
-                        name={`fourwheelerOwnership${index}`}
-                        value="fourwheelerTenant"
-                        checked={vehicle.ownership === "Tenant"}
-                        onChange={(e) =>
-                          handleFourWheelerChange(e, index, "ownership")
-                        }
-                      />
-                      <label>Tenant</label>
-                    </div>
+                  <div>
+  <input
+    id={`fourwheelerOwner${index}`}
+    type="radio"
+    name={`fourwheelerOwnership${index}`}
+    value="Owner"
+    checked={vehicle.ownership === "Owner"}
+    onChange={(e) => handleFourWheelerChange(e, index, "ownership")}
+  />
+  <label htmlFor={`fourwheelerOwner${index}`}>Owner</label>
+</div>
+<div>
+  <input
+    id={`fourwheelerTenant${index}`}
+    type="radio"
+    name={`fourwheelerOwnership${index}`}
+    value="Tenant"
+    checked={vehicle.ownership === "Tenant"}
+    onChange={(e) => handleFourWheelerChange(e, index, "ownership")}
+  />
+  <label htmlFor={`fourwheelerTenant${index}`}>Tenant</label>
+</div>
                   </div>
                 </div>
 
@@ -1290,32 +1301,28 @@ const UserForm = () => {
                 <div className="form-group">
                   <label>Vehicle Owned By:</label>
                   <div className="membership-options">
-                    <div>
-                      <input
-                        id="twowheelerOwner"
-                        type="radio"
-                        name={`twowheelerOwnership${index}`}
-                        value="twowheelerOwner"
-                        checked={vehicle.ownership === "Owner"}
-                        onChange={(e) =>
-                          handleTwoWheelerChange(e, index, "ownership")
-                        }
-                      />
-                      <label>Owner</label>
-                    </div>
-                    <div>
-                      <input
-                        id="twowheelerTenant"
-                        type="radio"
-                        name={`twowheelerOwnership${index}`}
-                        value="twowheelerTenant"
-                        checked={vehicle.ownership === "Tenant"}
-                        onChange={(e) =>
-                          handleTwoWheelerChange(e, index, "ownership")
-                        }
-                      />
-                      <label>Tenant</label>
-                    </div>
+                  <div>
+  <input
+    id={`twowheelerOwner${index}`}
+    type="radio"
+    name={`twowheelerOwnership${index}`}
+    value="Owner"
+    checked={vehicle.ownership === "Owner"}
+    onChange={(e) => handleTwoWheelerChange(e, index, "ownership")}
+  />
+  <label htmlFor={`twowheelerOwner${index}`}>Owner</label>
+</div>
+<div>
+  <input
+    id={`twowheelerTenant${index}`}
+    type="radio"
+    name={`twowheelerOwnership${index}`}
+    value="Tenant"
+    checked={vehicle.ownership === "Tenant"}
+    onChange={(e) => handleTwoWheelerChange(e, index, "ownership")}
+  />
+  <label htmlFor={`twowheelerTenant${index}`}>Tenant</label>
+</div>
                   </div>
                 </div>
                 <input
@@ -1393,15 +1400,19 @@ const UserForm = () => {
               Date <span className="required-asterisk">*</span>
             </label>
             <DatePicker
-              selected={formData.date ? new Date(formData.date) : null}
-              onChange={(date) =>
-                handleChange({ target: { name: "date", value: date.toISOString().split("T")[0] } })
-              }
-              dateFormat="dd/MM/yyyy"
-              placeholderText="Select Date"
-              className="date-picker"
-              wrapperClassName="date-picker-wrapper"
-            />
+  selected={formData.date ? new Date(formData.date) : null}
+  onChange={(date) =>
+    handleChange({ target: { name: "date", value: date.toISOString().split("T")[0] } })
+  }
+  dateFormat="dd/MM/yyyy"
+  placeholderText="Select Date"
+  className="date-picker"
+  wrapperClassName="date-picker-wrapper"
+  showMonthDropdown
+  showYearDropdown
+  dropdownMode="select" // Enables dropdown menus for month and year selection
+/>
+
           </div>
 
           <div className="form-group">
@@ -1473,8 +1484,8 @@ const UserForm = () => {
                   />
                 </div>
                 <center><h3>Society Membership Form</h3></center>
-
-                {formData.shareCertificateNo && <p><strong>Certificate No:</strong> {formData.shareCertificateNo}</p>}
+                <h4>Member Details</h4>
+                {formData.shareCertificateNo && <p><strong>Share Certificate No:</strong> {formData.shareCertificateNo}</p>}
                 {(formData.firstName || formData.middleName || formData.lastName) && (
                   <p><strong>Name:</strong> {formData.firstName} {formData.middleName} {formData.lastName}</p>
                 )}
@@ -1526,7 +1537,7 @@ const UserForm = () => {
               </div>
               {formData.jointMembers?.length > 0 && (
                 <div className="preview-section">
-                  <h4>Joint Members</h4>
+                  <h4>Joint Member Details</h4>
                   <table>
                     <thead>
                       <tr>

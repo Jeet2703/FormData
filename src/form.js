@@ -278,7 +278,7 @@ const UserForm = () => {
       education,
       profession,
       mobileNumber,
-      alternateContact,
+      // alternateContact,
       tenants,
       rented,
       residentialAddress,

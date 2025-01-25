@@ -84,7 +84,6 @@ const UserForm = () => {
       if (value === '3 bhk') {
         setFlatAreaOptions([
           '901 sqft',
-          '720 sqft',
           '897 sqft',
           '910 sqft',
           '899 sqft',
@@ -92,7 +91,7 @@ const UserForm = () => {
         ]);
         setIsFlatAreaText(false);
       } else if (value === '2 bhk') {
-        setFlatAreaOptions(['776 sqft']);
+        setFlatAreaOptions(['776 sqft', '720 sqft']);
         setIsFlatAreaText(false);
       } else if (value === '1 bhk') {
         setFlatAreaOptions([]);

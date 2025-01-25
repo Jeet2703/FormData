@@ -1,3 +1,4 @@
+require("dotenv").config(); 
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -5,12 +6,12 @@ const bodyParser = require("body-parser");
 const multer = require("multer");
 const path = require("path");
 const nodemailer = require("nodemailer");
-require("dotenv").config(); 
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
 // MongoDB connection
+console.log(process.env.MONGO_URL)
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,

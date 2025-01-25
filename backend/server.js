@@ -10,14 +10,10 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 // MongoDB connection
-mongoose.connect(
-  // "mongodb+srv://shahjeet64:ZNIsezGUlnm1o4vO@cluster0.zarb9en.mongodb.net/formData?retryWrites=true&w=majority",
-  "mongodb+srv://vina:tR5wYfwkAFZ4IjJF@cluster0.5kwfa.mongodb.net/formData?retryWrites=true&w=majority&appName=Cluster0",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-);
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 // Check MongoDB connection
 mongoose.connection.on("connected", () => {

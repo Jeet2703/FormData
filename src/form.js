@@ -283,6 +283,8 @@ const UserForm = () => {
       residentialAddress,
       declaration,
       date,
+      photo,
+      signature,
     } = formData;
 
     // Mandatory field check
@@ -381,8 +383,8 @@ const UserForm = () => {
       }
       // Declaration
       else if (!declaration) return 'You must accept the declaration.';
-
-
+      else if (!photo) return 'You must upload a photograph';
+      else if (!signature) return 'You must upload signature';
 
       return null; // No errors found
     };
@@ -607,7 +609,7 @@ const UserForm = () => {
         <form>
           {/* Share Certificate No */}
           <div className="form-group">
-          <label style={{marginBottom: "15px"}}>Member Details:</label>
+            <label style={{ marginBottom: "15px" }}>Member Details:</label>
             <label>Share Certificate No.</label>
             <input
               type="text"
@@ -818,18 +820,18 @@ const UserForm = () => {
                     onChange={(e) => handleJointMemberChange(e, index, "lastName")}
                   />
 
-<DatePicker
-  selected={member.dob ? new Date(member.dob) : null}
-  onChange={(date) => handleJointMemberChange({ target: { value: date.toISOString().split("T")[0] } }, index, "dob")}
-  placeholderText="Date of Birth"
-  dateFormat="dd/MM/yyyy"
-  showPopperArrow={false}
-  className="date-picker"
-  wrapperClassName="date-picker-wrapper"
-  showMonthDropdown
-  showYearDropdown
-  dropdownMode="select" // This ensures dropdowns are used instead of a scroll
-/>
+                  <DatePicker
+                    selected={member.dob ? new Date(member.dob) : null}
+                    onChange={(date) => handleJointMemberChange({ target: { value: date.toISOString().split("T")[0] } }, index, "dob")}
+                    placeholderText="Date of Birth"
+                    dateFormat="dd/MM/yyyy"
+                    showPopperArrow={false}
+                    className="date-picker"
+                    wrapperClassName="date-picker-wrapper"
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select" // This ensures dropdowns are used instead of a scroll
+                  />
 
 
                   <select
@@ -898,17 +900,17 @@ const UserForm = () => {
 
                 />
                 <DatePicker
-  selected={member.dob ? new Date(member.dob) : null}
-  onChange={(date) => handleFamilyMemberChange({ target: { value: date.toISOString().split("T")[0] } }, index, "dob")}
-  placeholderText="Date of Birth"
-  dateFormat="dd/MM/yyyy"
-  showPopperArrow={false}
-  className="date-picker"
-  wrapperClassName="date-picker-wrapper"
-  showMonthDropdown
-  showYearDropdown
-  dropdownMode="select" // Ensures dropdown menus for month and year
-/>
+                  selected={member.dob ? new Date(member.dob) : null}
+                  onChange={(date) => handleFamilyMemberChange({ target: { value: date.toISOString().split("T")[0] } }, index, "dob")}
+                  placeholderText="Date of Birth"
+                  dateFormat="dd/MM/yyyy"
+                  showPopperArrow={false}
+                  className="date-picker"
+                  wrapperClassName="date-picker-wrapper"
+                  showMonthDropdown
+                  showYearDropdown
+                  dropdownMode="select" // Ensures dropdown menus for month and year
+                />
 
                 <input
                   type="text"
@@ -1138,18 +1140,18 @@ const UserForm = () => {
 
                   />
 
-<DatePicker
-  selected={tenant.dob ? new Date(tenant.dob) : null}
-  onChange={(date) => handleTenantChange({ target: { value: date.toISOString().split("T")[0] } }, index, "dob")}
-  placeholderText="Date of Birth"
-  dateFormat="dd/MM/yyyy"
-  showPopperArrow={false}
-  className="date-picker"
-  wrapperClassName="date-picker-wrapper"
-  showMonthDropdown
-  showYearDropdown
-  dropdownMode="select" // Enables dropdowns for month and year selection
-/>
+                  <DatePicker
+                    selected={tenant.dob ? new Date(tenant.dob) : null}
+                    onChange={(date) => handleTenantChange({ target: { value: date.toISOString().split("T")[0] } }, index, "dob")}
+                    placeholderText="Date of Birth"
+                    dateFormat="dd/MM/yyyy"
+                    showPopperArrow={false}
+                    className="date-picker"
+                    wrapperClassName="date-picker-wrapper"
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select" // Enables dropdowns for month and year selection
+                  />
 
 
                   <select
@@ -1175,17 +1177,17 @@ const UserForm = () => {
 
                   />
                   <DatePicker
-  selected={tenant.agreementDate ? new Date(tenant.agreementDate) : null}
-  onChange={(date) => handleTenantChange({ target: { value: date.toISOString().split("T")[0] } }, index, "agreementDate")}
-  placeholderText="Date of Agreement"
-  dateFormat="dd/MM/yyyy"
-  showPopperArrow={false}
-  className="date-picker"
-  wrapperClassName="date-picker-wrapper"
-  showMonthDropdown
-  showYearDropdown
-  dropdownMode="select" // Enables dropdown menus for month and year selection
-/>
+                    selected={tenant.agreementDate ? new Date(tenant.agreementDate) : null}
+                    onChange={(date) => handleTenantChange({ target: { value: date.toISOString().split("T")[0] } }, index, "agreementDate")}
+                    placeholderText="Date of Agreement"
+                    dateFormat="dd/MM/yyyy"
+                    showPopperArrow={false}
+                    className="date-picker"
+                    wrapperClassName="date-picker-wrapper"
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select" // Enables dropdown menus for month and year selection
+                  />
 
                   <button className="delete-btn" onClick={() => deleteTenant(index)}>Delete</button>
                 </div>
@@ -1207,28 +1209,28 @@ const UserForm = () => {
                 <div className="form-group">
                   <label>Vehicle Owned By:</label>
                   <div className="membership-options">
-                  <div>
-  <input
-    id={`fourwheelerOwner${index}`}
-    type="radio"
-    name={`fourwheelerOwnership${index}`}
-    value="Owner"
-    checked={vehicle.ownership === "Owner"}
-    onChange={(e) => handleFourWheelerChange(e, index, "ownership")}
-  />
-  <label htmlFor={`fourwheelerOwner${index}`}>Owner</label>
-</div>
-<div>
-  <input
-    id={`fourwheelerTenant${index}`}
-    type="radio"
-    name={`fourwheelerOwnership${index}`}
-    value="Tenant"
-    checked={vehicle.ownership === "Tenant"}
-    onChange={(e) => handleFourWheelerChange(e, index, "ownership")}
-  />
-  <label htmlFor={`fourwheelerTenant${index}`}>Tenant</label>
-</div>
+                    <div>
+                      <input
+                        id={`fourwheelerOwner${index}`}
+                        type="radio"
+                        name={`fourwheelerOwnership${index}`}
+                        value="Owner"
+                        checked={vehicle.ownership === "Owner"}
+                        onChange={(e) => handleFourWheelerChange(e, index, "ownership")}
+                      />
+                      <label htmlFor={`fourwheelerOwner${index}`}>Owner</label>
+                    </div>
+                    <div>
+                      <input
+                        id={`fourwheelerTenant${index}`}
+                        type="radio"
+                        name={`fourwheelerOwnership${index}`}
+                        value="Tenant"
+                        checked={vehicle.ownership === "Tenant"}
+                        onChange={(e) => handleFourWheelerChange(e, index, "ownership")}
+                      />
+                      <label htmlFor={`fourwheelerTenant${index}`}>Tenant</label>
+                    </div>
                   </div>
                 </div>
 
@@ -1300,28 +1302,28 @@ const UserForm = () => {
                 <div className="form-group">
                   <label>Vehicle Owned By:</label>
                   <div className="membership-options">
-                  <div>
-  <input
-    id={`twowheelerOwner${index}`}
-    type="radio"
-    name={`twowheelerOwnership${index}`}
-    value="Owner"
-    checked={vehicle.ownership === "Owner"}
-    onChange={(e) => handleTwoWheelerChange(e, index, "ownership")}
-  />
-  <label htmlFor={`twowheelerOwner${index}`}>Owner</label>
-</div>
-<div>
-  <input
-    id={`twowheelerTenant${index}`}
-    type="radio"
-    name={`twowheelerOwnership${index}`}
-    value="Tenant"
-    checked={vehicle.ownership === "Tenant"}
-    onChange={(e) => handleTwoWheelerChange(e, index, "ownership")}
-  />
-  <label htmlFor={`twowheelerTenant${index}`}>Tenant</label>
-</div>
+                    <div>
+                      <input
+                        id={`twowheelerOwner${index}`}
+                        type="radio"
+                        name={`twowheelerOwnership${index}`}
+                        value="Owner"
+                        checked={vehicle.ownership === "Owner"}
+                        onChange={(e) => handleTwoWheelerChange(e, index, "ownership")}
+                      />
+                      <label htmlFor={`twowheelerOwner${index}`}>Owner</label>
+                    </div>
+                    <div>
+                      <input
+                        id={`twowheelerTenant${index}`}
+                        type="radio"
+                        name={`twowheelerOwnership${index}`}
+                        value="Tenant"
+                        checked={vehicle.ownership === "Tenant"}
+                        onChange={(e) => handleTwoWheelerChange(e, index, "ownership")}
+                      />
+                      <label htmlFor={`twowheelerTenant${index}`}>Tenant</label>
+                    </div>
                   </div>
                 </div>
                 <input
@@ -1399,18 +1401,18 @@ const UserForm = () => {
               Date <span className="required-asterisk">*</span>
             </label>
             <DatePicker
-  selected={formData.date ? new Date(formData.date) : null}
-  onChange={(date) =>
-    handleChange({ target: { name: "date", value: date.toISOString().split("T")[0] } })
-  }
-  dateFormat="dd/MM/yyyy"
-  placeholderText="Select Date"
-  className="date-picker"
-  wrapperClassName="date-picker-wrapper"
-  showMonthDropdown
-  showYearDropdown
-  dropdownMode="select" // Enables dropdown menus for month and year selection
-/>
+              selected={formData.date ? new Date(formData.date) : null}
+              onChange={(date) =>
+                handleChange({ target: { name: "date", value: date.toISOString().split("T")[0] } })
+              }
+              dateFormat="dd/MM/yyyy"
+              placeholderText="Select Date"
+              className="date-picker"
+              wrapperClassName="date-picker-wrapper"
+              showMonthDropdown
+              showYearDropdown
+              dropdownMode="select" // Enables dropdown menus for month and year selection
+            />
 
           </div>
 
@@ -1715,25 +1717,27 @@ const UserForm = () => {
 
               {/* Download as PDF */}
               <div className="download-btn-container">
-                <button onClick={handleDownload} className="download-button">
-                  Download as PDF
-                </button>
-                <div>
-      {loading ? (
-        <div className="loading-container">
-          <ClipLoader color="#007BFF" size={50} /> {/* Add a spinner */}
-          {/* <p>Submitting your form, please wait...</p> */}
-        </div>
-      ) : (
-        <button onClick={handleSubmit} className="download-button">
-          Submit
-        </button>
-      )}
+  <button onClick={handleDownload} className="download-button">
+    Download as PDF
+  </button>
+  
+  <button onClick={handleSubmit} className="download-button">
+    Submit
+  </button>
+  
+  <button onClick={closeModal} className="download-button">
+    Edit/Close
+  </button>
+
+  {/* Render loading overlay when loading is true */}
+  {loading && (
+    <div className="loading-overlay">
+      <ClipLoader color="#007BFF" size={50} />
+      <p>Submitting your form, please wait...</p>
     </div>
-                <button onClick={closeModal} className="download-button">
-                  Edit/Close
-                </button>
-              </div>
+  )}
+</div>
+
             </div>
           </div>
         </div>

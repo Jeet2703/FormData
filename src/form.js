@@ -22,6 +22,7 @@ const UserForm = () => {
     dob: "",
     gender: "",
     maritalStatus: "",
+    parentOrSpouseType: "",
     parentOrSpouseName: "",
     familyMembers: [],
     guardianName: "",
@@ -40,6 +41,7 @@ const UserForm = () => {
     photo: null,
     signature: null,
     petDetails: "",
+    pet: "",
     rented: "",
     residentialAddress: "",
     tenants: [],
@@ -78,32 +80,35 @@ const UserForm = () => {
   // Function to handle input field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
 
-    if (name === 'flatSize') {
-      if (value === '3 bhk') {
-        setFlatAreaOptions([
-          '901 sqft',
-          '897 sqft',
-          '910 sqft',
-          '899 sqft',
-          '1011 sqft',
-        ]);
-        setIsFlatAreaText(false);
-      } else if (value === '2 bhk') {
-        setFlatAreaOptions(['776 sqft', '720 sqft']);
-        setIsFlatAreaText(false);
-      } else if (value === '1 bhk') {
-        setFlatAreaOptions([]);
-        setIsFlatAreaText(true);
+    // Update formData state with the new value
+    setFormData((prevData) => {
+      const updatedFormData = { ...prevData, [name]: value };
+
+      // If the field is 'flatSize', adjust flat area options accordingly
+      if (name === 'flatSize') {
+        if (value === '3 bhk') {
+          setFlatAreaOptions(['901 sqft', '897 sqft', '910 sqft', '899 sqft', '1011 sqft']);
+          setIsFlatAreaText(false);
+        } else if (value === '2 bhk') {
+          setFlatAreaOptions(['776 sqft', '720 sqft']);
+          setIsFlatAreaText(false);
+        } else if (value === '1 bhk') {
+          setFlatAreaOptions([]);
+          setIsFlatAreaText(true);
+        }
       }
-    }
 
-    if (name === "dob") {
-      const age = calculateAge(value);
-      setShowGuardianField(age < 18);
-    }
+      // If the 'dob' field is changed, calculate the age and show guardian field if necessary
+      if (name === "dob") {
+        const age = calculateAge(value);
+        setShowGuardianField(age < 18);
+      }
+
+      return updatedFormData; // Return the updated formData to update the state
+    });
   };
+
 
   // Function to handle file input changes (for photo and signature)
   const addFamilyMember = () => {
@@ -250,6 +255,15 @@ const UserForm = () => {
     setFormData({ ...formData, [name]: file });
   };
 
+  const handleParentOrSpouseChange = (e) => {
+    const { value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      parentOrSpouseType: value,
+      parentOrSpouseName: "", // Reset the name when selection changes
+    }));
+  };
+
   // Function to handle the preview button click
   const handlePreview = () => {
     const {
@@ -266,6 +280,7 @@ const UserForm = () => {
       dob,
       gender,
       maritalStatus,
+      parentOrSpouseType,
       parentOrSpouseName,
       familyMembers,
       guardianName,
@@ -280,6 +295,8 @@ const UserForm = () => {
       // alternateContact,
       tenants,
       rented,
+      pet,
+      petDetails,
       residentialAddress,
       declaration,
       date,
@@ -299,7 +316,8 @@ const UserForm = () => {
       else if (new Date(dob) > new Date()) return 'Date of Birth cannot be in the future.';
       else if (!gender) return 'Gender is mandatory.';
       else if (!maritalStatus) return 'Marital Status is mandatory.';
-      else if (!parentOrSpouseName) return 'Parent or Spouse Name is mandatory.';
+      else if (!parentOrSpouseType) return 'Type is mandatory.';
+      else if (parentOrSpouseType && !parentOrSpouseName) return 'Parent or Spouse Name is mandatory.';
       else if (showGuardianField && !guardianName) return 'Guardian Name is mandatory.';
       else if (!religion) return 'Religion is mandatory.';
       else if (!nationality) return 'Nationality is mandatory.';
@@ -324,6 +342,9 @@ const UserForm = () => {
 
       // Residential Information
       else if (rented === "yes" && !residentialAddress) return 'Residential Address is mandatory.';
+      else if (!rented) return 'Choosing Yes or No is mandatory for Rented.';
+      else if (pet === "yes" && !petDetails) return 'Pet Details is mandatory.';
+      else if (!pet) return 'Choosing Yes or No is mandatory for Pet.';
       else if (!wingName) return 'Wing Name is mandatory.';
       else if (!flatNo) return 'Flat Number is mandatory.';
       else if (!flatArea) return 'Flat Area is mandatory.';
@@ -361,7 +382,7 @@ const UserForm = () => {
       // else if (!fourWheelers || fourWheelers.length === 0) return 'Four Wheeler details are mandatory.';
       // else if (!twoWheelers || twoWheelers.length === 0) return 'Two Wheeler details are mandatory.';
 
-      else if (rented === "yes" && !residentialAddress) return 'Residential Address is mandatory.';
+      // else if (rented === "yes" && !residentialAddress) return 'Residential Address is mandatory.';
 
       // // Tenants
       else if (rented === "yes" && (!tenants || tenants.length === 0)) return 'Tenant details are mandatory for rented properties.';
@@ -607,6 +628,23 @@ const UserForm = () => {
         </div>
         <h2 className="form-title">Society Membership Form</h2>
         <form>
+        <div className="form-group">
+            <label>Photograph(less than 5mb)<span className="required-asterisk">*</span></label>
+            <input
+              type="file"
+              name="photo"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+            {formData.photo && (
+              <img
+                src={URL.createObjectURL(formData.photo)}
+                alt="A description of the"
+                className="photo-preview"
+
+              />
+            )}
+          </div>
           {/* Share Certificate No */}
           <div className="form-group">
             <label style={{ marginBottom: "15px" }}>Member Details:</label>
@@ -775,17 +813,53 @@ const UserForm = () => {
             </select>
           </div>
 
-          {/* Parent or Spouse Name */}
           <div className="form-group">
-            <label>Name of Father/ Mother/ Spouse<span className="required-asterisk">*</span></label>
+        <label>Select Relation<span className="required-asterisk">*</span></label>
+        <div>
+          <label>
             <input
-              type="text"
-              name="parentOrSpouseName"
-              value={formData.parentOrSpouseName}
-              onChange={handleChange}
+              type="radio"
+              name="parentOrSpouseType"
+              value="Father"
+              checked={formData.parentOrSpouseType === "Father"}
+              onChange={handleParentOrSpouseChange}
+            /> Father
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="parentOrSpouseType"
+              value="Mother"
+              checked={formData.parentOrSpouseType === "Mother"}
+              onChange={handleParentOrSpouseChange}
+            /> Mother
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="parentOrSpouseType"
+              value="Spouse"
+              checked={formData.parentOrSpouseType === "Spouse"}
+              onChange={handleParentOrSpouseChange}
+            /> Spouse
+          </label>
+        </div>
+      </div>
 
-            />
-          </div>
+          {/* Parent or Spouse Name */}
+          {formData.parentOrSpouseType && (
+        <div className="form-group">
+          <label>
+            Name of {formData.parentOrSpouseType} <span className="required-asterisk">*</span>
+          </label>
+          <input
+            type="text"
+            name="parentOrSpouseName"
+            value={formData.parentOrSpouseName}
+            onChange={handleChange}
+          />
+        </div>
+      )}
 
 
           {/* Membership Type */}
@@ -1066,16 +1140,46 @@ const UserForm = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="pet-details">Pet Details</label>
-            <input
-              type="text"
-              id="pet-details"
-              name="petDetails"
-              value={formData.petDetails}
-              onChange={handleChange}
-              placeholder="Enter pet details"
-            />
+            <label>Do you have a pet?<span className="required-asterisk">*</span></label>
+            <div className="membership-options">
+              <div>
+                <input
+                  type="radio"
+                  id="pet-yes"
+                  name="pet"
+                  value="yes"
+                  checked={formData.pet === "yes"}
+                  onChange={handleChange}
+                />
+                <label htmlFor="pet-yes">Yes</label>
+              </div>
+              <div>
+                <input
+                  type="radio"
+                  id="pet-no"
+                  name="pet"
+                  value="no"
+                  checked={formData.pet === "no"}
+                  onChange={handleChange}
+                />
+                <label htmlFor="pet-no">No</label>
+              </div>
+            </div>
           </div>
+
+          {formData.pet === "yes" && (
+            <div className="form-group">
+              <label htmlFor="pet-details">Pet Details<span className="required-asterisk">*</span></label>
+              <input
+                type="text"
+                id="pet-details"
+                name="petDetails"
+                value={formData.petDetails}
+                onChange={handleChange}
+                placeholder="Enter pet details"
+              />
+            </div>
+          )}
 
           {/* Whether Rented */}
           <div className="form-group">
@@ -1389,6 +1493,7 @@ const UserForm = () => {
                 name="declaration"
                 checked={formData.declaration}
                 onChange={handleCheckboxChange}
+                style={{ marginBottom: "15px" }}
               />
               I hereby certify that the information furnished above is correct
               and true to my knowledge.<span className="required-asterisk">*</span>
@@ -1414,24 +1519,6 @@ const UserForm = () => {
               dropdownMode="select" // Enables dropdown menus for month and year selection
             />
 
-          </div>
-
-          <div className="form-group">
-            <label>Photograph(less than 5mb)<span className="required-asterisk">*</span></label>
-            <input
-              type="file"
-              name="photo"
-              accept="image/*"
-              onChange={handleFileChange}
-
-            />
-            {formData.photo && (
-              <img
-                src={URL.createObjectURL(formData.photo)}
-                alt="A description of the"
-                className="photo-preview"
-              />
-            )}
           </div>
 
           {/* Specimen Signature */}
@@ -1501,9 +1588,9 @@ const UserForm = () => {
 
                 {formData.gender && <p><strong>Gender:</strong> {formData.gender}</p>}
                 {formData.maritalStatus && <p><strong>Marital Status:</strong> {formData.maritalStatus}</p>}
-                {formData.parentOrSpouseName && (
-                  <p><strong>Father/Mother/Spouse Name:</strong> {formData.parentOrSpouseName}</p>
-                )}
+                {formData.parentOrSpouseType && formData.parentOrSpouseName && (
+        <p><strong>{formData.parentOrSpouseType} Name:</strong> {formData.parentOrSpouseName}</p>
+      )}
               </div>
 
               {/* Guardian, Religion, Nationality, Aadhar, PAN, and Other Fields */}
@@ -1525,6 +1612,7 @@ const UserForm = () => {
                   <p><strong>Alternate Contact No:</strong> {formData.alternateContact}</p>
                 )}
                 {formData.email && <p><strong>Email ID:</strong> {formData.email}</p>}
+                {formData.pet && <p><strong>Whether Pet:</strong> {formData.pet}</p>}
                 {formData.petDetails && <p><strong>Pet Details:</strong> {formData.petDetails}</p>}
                 {formData.rented && <p><strong>Whether Rented:</strong> {formData.rented}</p>}
                 {formData.residentialAddress && (
@@ -1539,54 +1627,58 @@ const UserForm = () => {
               {formData.jointMembers?.length > 0 && (
                 <div className="preview-section">
                   <h4>Joint Member Details</h4>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Date of Birth</th>
-                        <th>Gender</th>
-                        <th>Marital Status</th>
-                        <th>Mobile Number</th>
-                        <th>Email</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {formData.jointMembers.map((member, index) => (
-                        <tr key={index}>
-                          <td>{member.firstName} {member.middleName} {member.lastName}</td>
-                          <td>{new Date(member.dob).toLocaleDateString()}</td>
-                          <td>{member.gender}</td>
-                          <td>{member.maritalStatus}</td>
-                          <td>{member.mobileNumber}</td>
-                          <td>{member.email}</td>
+                  <div className="table-container">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Date of Birth</th>
+                          <th>Gender</th>
+                          <th>Marital Status</th>
+                          <th>Mobile Number</th>
+                          <th>Email</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {formData.jointMembers.map((member, index) => (
+                          <tr key={index}>
+                            <td>{member.firstName} {member.middleName} {member.lastName}</td>
+                            <td>{new Date(member.dob).toLocaleDateString()}</td>
+                            <td>{member.gender}</td>
+                            <td>{member.maritalStatus}</td>
+                            <td>{member.mobileNumber}</td>
+                            <td>{member.email}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
               {/* Family Members Table */}
               {formData.familyMembers?.length > 0 && (
                 <div className="preview-section">
                   <h4>Family Members</h4>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Date of Birth</th>
-                        <th>Relation</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {formData.familyMembers.map((member, index) => (
-                        <tr key={index}>
-                          <td>{member.name}</td>
-                          <td>{new Date(member.dob).toLocaleDateString()}</td>
-                          <td>{member.relation}</td>
+                  <div className="table-container">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Date of Birth</th>
+                          <th>Relation</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {formData.familyMembers.map((member, index) => (
+                          <tr key={index}>
+                            <td>{member.name}</td>
+                            <td>{new Date(member.dob).toLocaleDateString()}</td>
+                            <td>{member.relation}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
 
@@ -1596,58 +1688,62 @@ const UserForm = () => {
 
                 {formData.fourWheelers?.length > 0 && (<h4>4-Wheelers</h4>)}
                 {formData.fourWheelers?.length > 0 && (
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Owned By</th>
-                        <th>Registration No.</th>
-                        <th>Parking Slot</th>
-                        <th>Make</th>
-                        <th>Model</th>
-                        <th>Type</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {formData.fourWheelers.map((vehicle, index) => (
-                        <tr key={index}>
-                          <td>{vehicle.ownership}</td>
-                          <td>{vehicle.registration}</td>
-                          <td>{vehicle.parkingSlot}</td>
-                          <td>{vehicle.make}</td>
-                          <td>{vehicle.model}</td>
-                          <td>{vehicle.type}</td>
+                  <div className="table-container">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Owned By</th>
+                          <th>Registration No.</th>
+                          <th>Parking Slot</th>
+                          <th>Make</th>
+                          <th>Model</th>
+                          <th>Type</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {formData.fourWheelers.map((vehicle, index) => (
+                          <tr key={index}>
+                            <td>{vehicle.ownership}</td>
+                            <td>{vehicle.registration}</td>
+                            <td>{vehicle.parkingSlot}</td>
+                            <td>{vehicle.make}</td>
+                            <td>{vehicle.model}</td>
+                            <td>{vehicle.type}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
 
                 {formData.twoWheelers?.length > 0 && (<h4>2-Wheelers</h4>)}
                 {formData.twoWheelers?.length > 0 && (
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Owned By</th>
-                        <th>Registration No.</th>
-                        <th>Parking Slot</th>
-                        <th>Make</th>
-                        <th>Model</th>
-                        <th>Type</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {formData.twoWheelers.map((vehicle, index) => (
-                        <tr key={index}>
-                          <td>{vehicle.ownership}</td>
-                          <td>{vehicle.registration}</td>
-                          <td>{vehicle.parkingSlot}</td>
-                          <td>{vehicle.make}</td>
-                          <td>{vehicle.model}</td>
-                          <td>{vehicle.type}</td>
+                  <div className="table-container">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Owned By</th>
+                          <th>Registration No.</th>
+                          <th>Parking Slot</th>
+                          <th>Make</th>
+                          <th>Model</th>
+                          <th>Type</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {formData.twoWheelers.map((vehicle, index) => (
+                          <tr key={index}>
+                            <td>{vehicle.ownership}</td>
+                            <td>{vehicle.registration}</td>
+                            <td>{vehicle.parkingSlot}</td>
+                            <td>{vehicle.make}</td>
+                            <td>{vehicle.model}</td>
+                            <td>{vehicle.type}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
               </div>
 
@@ -1656,28 +1752,30 @@ const UserForm = () => {
 
                 {formData.tenants?.length > 0 && (<h4>Details of Tenants</h4>)}
                 {formData.tenants?.length > 0 && (
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Date of Birth</th>
-                        <th>Gender</th>
-                        <th>Mobile Number</th>
-                        <th>Agreement Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {formData.tenants.map((tenant, index) => (
-                        <tr key={index}>
-                          <td>{tenant.name}</td>
-                          <td>{new Date(tenant.dob).toLocaleDateString()}</td>
-                          <td>{tenant.gender}</td>
-                          <td>{tenant.mobileNo}</td>
-                          <td>{new Date(tenant.agreementDate).toLocaleDateString()}</td>
+                  <div className="table-container">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Date of Birth</th>
+                          <th>Gender</th>
+                          <th>Mobile Number</th>
+                          <th>Agreement Date</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {formData.tenants.map((tenant, index) => (
+                          <tr key={index}>
+                            <td>{tenant.name}</td>
+                            <td>{new Date(tenant.dob).toLocaleDateString()}</td>
+                            <td>{tenant.gender}</td>
+                            <td>{tenant.mobileNo}</td>
+                            <td>{new Date(tenant.agreementDate).toLocaleDateString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
               </div>
 
@@ -1717,26 +1815,26 @@ const UserForm = () => {
 
               {/* Download as PDF */}
               <div className="download-btn-container">
-  <button onClick={handleDownload} className="download-button">
-    Download as PDF
-  </button>
-  
-  <button onClick={handleSubmit} className="download-button">
-    Submit
-  </button>
-  
-  <button onClick={closeModal} className="download-button">
-    Edit/Close
-  </button>
+                <button onClick={handleDownload} className="download-button">
+                  Download as PDF
+                </button>
 
-  {/* Render loading overlay when loading is true */}
-  {loading && (
-    <div className="loading-overlay">
-      <ClipLoader color="#007BFF" size={50} />
-      <p>Submitting your form, please wait...</p>
-    </div>
-  )}
-</div>
+                <button onClick={handleSubmit} className="download-button">
+                  Submit
+                </button>
+
+                <button onClick={closeModal} className="download-button">
+                  Edit/Close
+                </button>
+
+                {/* Render loading overlay when loading is true */}
+                {loading && (
+                  <div className="loading-overlay">
+                    <ClipLoader color="#007BFF" size={50} />
+                    <p>Submitting your form, please wait...</p>
+                  </div>
+                )}
+              </div>
 
             </div>
           </div>

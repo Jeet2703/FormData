@@ -654,7 +654,6 @@ const UserForm = () => {
               name="shareCertificateNo"
               value={formData.shareCertificateNo}
               onChange={handleChange}
-
             />
           </div>
 
@@ -814,7 +813,7 @@ const UserForm = () => {
           </div>
 
           <div className="form-group">
-        <label>Select Relation<span className="required-asterisk">*</span></label>
+        <label>Enter Name<span className="required-asterisk">*</span></label>
         <div>
           <label>
             <input
@@ -863,146 +862,9 @@ const UserForm = () => {
 
 
           {/* Membership Type */}
-          <div className="form-group">
-            <label>Joint Member Details</label>
-            <div className="form-group">
-
-              {formData.jointMembers?.map((member, index) => (
-                <div key={index} className="joint-member">
-                  <h4 style={{ fontWeight: "normal", color: "#555" }}>
-                    Joint Member {index + 1}
-                  </h4>
-                  <input
-                    type="text"
-                    name={`firstName${index}`}
-                    placeholder="First Name"
-                    value={member.firstName}
-                    onChange={(e) => handleJointMemberChange(e, index, "firstName")}
-                  />
-                  <input
-                    type="text"
-                    name={`middleName${index}`}
-                    placeholder="Middle Name"
-                    value={member.middleName}
-                    onChange={(e) => handleJointMemberChange(e, index, "middleName")}
-                  />
-                  <input
-                    type="text"
-                    name={`lastName${index}`}
-                    placeholder="Last Name"
-                    value={member.lastName}
-                    onChange={(e) => handleJointMemberChange(e, index, "lastName")}
-                  />
-
-                  <DatePicker
-                    selected={member.dob ? new Date(member.dob) : null}
-                    onChange={(date) => handleJointMemberChange({ target: { value: date.toISOString().split("T")[0] } }, index, "dob")}
-                    placeholderText="Date of Birth"
-                    dateFormat="dd/MM/yyyy"
-                    showPopperArrow={false}
-                    className="date-picker"
-                    wrapperClassName="date-picker-wrapper"
-                    showMonthDropdown
-                    showYearDropdown
-                    dropdownMode="select" // This ensures dropdowns are used instead of a scroll
-                  />
-
-
-                  <select
-                    name={`gender${index}`}
-                    value={member.gender}
-                    onChange={(e) => handleJointMemberChange(e, index, "gender")}
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="thirdGender">Third Gender</option>
-                  </select>
-                  <select
-                    name={`maritalStatus${index}`}
-                    value={member.maritalStatus}
-                    onChange={(e) =>
-                      handleJointMemberChange(e, index, "maritalStatus")
-                    }
-                  >
-                    <option value="">Select Marital Status</option>
-                    <option value="married">Married</option>
-                    <option value="unmarried">Unmarried</option>
-                    <option value="others">Others</option>
-                  </select>
-                  <input
-                    type="text"
-                    name={`mobileNumber${index}`}
-                    placeholder="Mobile Number"
-                    value={member.mobileNumber}
-                    onChange={(e) => handleJointMemberChange(e, index, "mobileNumber")}
-                  />
-                  <input
-                    type="text"
-                    name={`email${index}`}
-                    placeholder="Email ID"
-                    value={member.email}
-                    onChange={(e) => handleJointMemberChange(e, index, "email")}
-                  />
-                  <button
-                    className="delete-btn"
-                    onClick={() => deleteJointMember(index)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              ))}
-              <button type="button" onClick={addJointMember}>
-                + Add Joint Member
-              </button>
-            </div>
-          </div>
+          
           {/* Family Members */}
-          <div className="form-group">
-            <label>Family Members<span className="required-asterisk">*</span></label>
-            {formData.familyMembers?.map((member, index) => (
-              <div key={index} className="family-member">
-                <h4 style={{ fontWeight: "normal", color: "#555" }}>
-                  Member {index + 1}
-                </h4>
-                <input
-                  type="text"
-                  name={`memberName${index}`}
-                  placeholder="Name"
-                  value={member.name}
-                  onChange={(e) => handleFamilyMemberChange(e, index, "name")}
-
-                />
-                <DatePicker
-                  selected={member.dob ? new Date(member.dob) : null}
-                  onChange={(date) => handleFamilyMemberChange({ target: { value: date.toISOString().split("T")[0] } }, index, "dob")}
-                  placeholderText="Date of Birth"
-                  dateFormat="dd/MM/yyyy"
-                  showPopperArrow={false}
-                  className="date-picker"
-                  wrapperClassName="date-picker-wrapper"
-                  showMonthDropdown
-                  showYearDropdown
-                  dropdownMode="select" // Ensures dropdown menus for month and year
-                />
-
-                <input
-                  type="text"
-                  name={`memberRelation${index}`}
-                  placeholder="Relation"
-                  value={member.relation}
-                  onChange={(e) =>
-                    handleFamilyMemberChange(e, index, "relation")
-                  }
-
-                />
-                <button className="delete-btn" onClick={() => deleteFamilyMember(index)}>Delete</button>
-              </div>
-            ))}
-            <button type="button" onClick={addFamilyMember}>
-              + Add Member
-            </button>
-          </div>
+          
 
           {/* Guardian Name (In case of Minor) */}
           {showGuardianField && (
@@ -1137,6 +999,147 @@ const UserForm = () => {
               value={formData.email}
               onChange={handleChange}
             />
+          </div>
+
+          <div className="form-group">
+            <label>Joint Member Details</label>
+            <div className="form-group">
+
+              {formData.jointMembers?.map((member, index) => (
+                <div key={index} className="joint-member">
+                  <h4 style={{ fontWeight: "normal", color: "#555" }}>
+                    Joint Member {index + 1}
+                  </h4>
+                  <input
+                    type="text"
+                    name={`firstName${index}`}
+                    placeholder="First Name"
+                    value={member.firstName}
+                    onChange={(e) => handleJointMemberChange(e, index, "firstName")}
+                  />
+                  <input
+                    type="text"
+                    name={`middleName${index}`}
+                    placeholder="Middle Name"
+                    value={member.middleName}
+                    onChange={(e) => handleJointMemberChange(e, index, "middleName")}
+                  />
+                  <input
+                    type="text"
+                    name={`lastName${index}`}
+                    placeholder="Last Name"
+                    value={member.lastName}
+                    onChange={(e) => handleJointMemberChange(e, index, "lastName")}
+                  />
+
+                  <DatePicker
+                    selected={member.dob ? new Date(member.dob) : null}
+                    onChange={(date) => handleJointMemberChange({ target: { value: date.toISOString().split("T")[0] } }, index, "dob")}
+                    placeholderText="Date of Birth"
+                    dateFormat="dd/MM/yyyy"
+                    showPopperArrow={false}
+                    className="date-picker"
+                    wrapperClassName="date-picker-wrapper"
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select" // This ensures dropdowns are used instead of a scroll
+                  />
+
+
+                  <select
+                    name={`gender${index}`}
+                    value={member.gender}
+                    onChange={(e) => handleJointMemberChange(e, index, "gender")}
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="thirdGender">Third Gender</option>
+                  </select>
+                  <select
+                    name={`maritalStatus${index}`}
+                    value={member.maritalStatus}
+                    onChange={(e) =>
+                      handleJointMemberChange(e, index, "maritalStatus")
+                    }
+                  >
+                    <option value="">Select Marital Status</option>
+                    <option value="married">Married</option>
+                    <option value="unmarried">Unmarried</option>
+                    <option value="others">Others</option>
+                  </select>
+                  <input
+                    type="text"
+                    name={`mobileNumber${index}`}
+                    placeholder="Mobile Number"
+                    value={member.mobileNumber}
+                    onChange={(e) => handleJointMemberChange(e, index, "mobileNumber")}
+                  />
+                  <input
+                    type="text"
+                    name={`email${index}`}
+                    placeholder="Email ID"
+                    value={member.email}
+                    onChange={(e) => handleJointMemberChange(e, index, "email")}
+                  />
+                  <button
+                    className="delete-btn"
+                    onClick={() => deleteJointMember(index)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={addJointMember}>
+                + Add Joint Member
+              </button>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Family Members<span className="required-asterisk">*</span></label>
+            {formData.familyMembers?.map((member, index) => (
+              <div key={index} className="family-member">
+                <h4 style={{ fontWeight: "normal", color: "#555" }}>
+                  Member {index + 1}
+                </h4>
+                <input
+                  type="text"
+                  name={`memberName${index}`}
+                  placeholder="Name"
+                  value={member.name}
+                  onChange={(e) => handleFamilyMemberChange(e, index, "name")}
+
+                />
+                <DatePicker
+                  selected={member.dob ? new Date(member.dob) : null}
+                  onChange={(date) => handleFamilyMemberChange({ target: { value: date.toISOString().split("T")[0] } }, index, "dob")}
+                  placeholderText="Date of Birth"
+                  dateFormat="dd/MM/yyyy"
+                  showPopperArrow={false}
+                  className="date-picker"
+                  wrapperClassName="date-picker-wrapper"
+                  showMonthDropdown
+                  showYearDropdown
+                  dropdownMode="select" // Ensures dropdown menus for month and year
+                />
+
+                <input
+                  type="text"
+                  name={`memberRelation${index}`}
+                  placeholder="Relation"
+                  value={member.relation}
+                  onChange={(e) =>
+                    handleFamilyMemberChange(e, index, "relation")
+                  }
+
+                />
+                <button className="delete-btn" onClick={() => deleteFamilyMember(index)}>Delete</button>
+              </div>
+            ))}
+            <button type="button" onClick={addFamilyMember}>
+              + Add Member
+            </button>
           </div>
 
           <div className="form-group">

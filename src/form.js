@@ -435,7 +435,7 @@ const UserForm = () => {
   const handleDownload = () => {
 
     const options = {
-      margin: 24,
+      margin: 30,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
         scale: 2,
@@ -485,7 +485,7 @@ const UserForm = () => {
 
   const handleDownload1 = () => {
     const options = {
-      margin: 24,
+      margin: 30,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
         scale: 2,

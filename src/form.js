@@ -18,7 +18,8 @@ const UserForm = () => {
     wingName: "",
     flatNo: "",
     flatSize: "",
-    flatArea: "",
+    flatAreaSqMeter: "",
+  flatAreaSqFeet: "",
     dob: "",
     gender: "",
     maritalStatus: "",
@@ -49,8 +50,6 @@ const UserForm = () => {
     date: "",
   });
 
-  const [flatAreaOptions, setFlatAreaOptions] = useState([]);
-  const [isFlatAreaText, setIsFlatAreaText] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [preview, setPreview] = useState(false); // This controls the visibility of the preview modal
@@ -84,20 +83,6 @@ const UserForm = () => {
     // Update formData state with the new value
     setFormData((prevData) => {
       const updatedFormData = { ...prevData, [name]: value };
-
-      // If the field is 'flatSize', adjust flat area options accordingly
-      if (name === 'flatSize') {
-        if (value === '3 bhk') {
-          setFlatAreaOptions(['901 sqft', '897 sqft', '910 sqft', '899 sqft', '1011 sqft']);
-          setIsFlatAreaText(false);
-        } else if (value === '2 bhk') {
-          setFlatAreaOptions(['776 sqft', '720 sqft']);
-          setIsFlatAreaText(false);
-        } else if (value === '1 bhk') {
-          setFlatAreaOptions([]);
-          setIsFlatAreaText(true);
-        }
-      }
 
       // If the 'dob' field is changed, calculate the age and show guardian field if necessary
       if (name === "dob") {
@@ -741,32 +726,30 @@ const UserForm = () => {
 
           {/* Flat Area */}
           <div className="form-group">
-            <label>
-              Flat Area<span className="required-asterisk">*</span>
-            </label>
-            {isFlatAreaText ? (
-              <input
-                type="text"
-                name="flatArea"
-                value={formData.flatArea}
-                onChange={handleChange}
-                placeholder="Enter flat area (sq ft)"
-              />
-            ) : (
-              <select
-                name="flatArea"
-                value={formData.flatArea}
-                onChange={handleChange}
-              >
-                <option value="">Select Flat Area</option>
-                {flatAreaOptions.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
+  <label>Flat Area (as per agreement)</label>
+  <div className="flat-area-container">
+    <div className="flat-area-input">
+      <label>Sq Metre<span className="required-asterisk">*</span></label>
+      <input
+        type="text"
+        name="flatAreaSqMeter"
+        value={formData.flatAreaSqMeter}
+        onChange={handleChange}
+        required
+      />
+    </div>
+    <div className="flat-area-input">
+      <label>Sq Feet<span className="required-asterisk">*</span></label>
+      <input
+        type="text"
+        name="flatAreaSqFeet"
+        value={formData.flatAreaSqFeet}
+        onChange={handleChange}
+        required
+      />
+    </div>
+  </div>
+</div>
 
           {/* Date of Birth */}
           <div className="form-group">
@@ -1584,7 +1567,9 @@ const UserForm = () => {
                 {formData.wingName && <p><strong>Wing Name:</strong> {formData.wingName}</p>}
                 {formData.flatNo && <p><strong>Flat No:</strong> {formData.flatNo}</p>}
                 {formData.flatSize && <p><strong>Flat Size:</strong> {formData.flatSize}</p>}
-                {formData.flatArea && <p><strong>Area of Flat:</strong> {formData.flatArea}</p>}
+                <p>
+  <strong>Flat Area:</strong> {formData.flatAreaSqMeter} Sq. Meter / {formData.flatAreaSqFeet} Sq. Feet
+</p>
                 {formData.dob && (
                   <p><strong>Date of Birth:</strong> {new Date(formData.dob).toLocaleDateString()}</p>
                 )}

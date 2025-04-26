@@ -261,7 +261,7 @@ const UserForm = () => {
       wingName,
       flatNo,
       flatSize,
-      flatArea,
+      // flatArea,
       dob,
       gender,
       maritalStatus,

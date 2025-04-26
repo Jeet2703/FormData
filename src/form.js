@@ -332,7 +332,7 @@ const UserForm = () => {
       else if (!pet) return 'Choosing Yes or No is mandatory for Pet.';
       else if (!wingName) return 'Wing Name is mandatory.';
       else if (!flatNo) return 'Flat Number is mandatory.';
-      else if (!flatArea) return 'Flat Area is mandatory.';
+      // else if (!flatArea) return 'Flat Area is mandatory.';
       else if (!flatSize) return 'Flat Size is mandatory.';
 
       // Membership Detail
